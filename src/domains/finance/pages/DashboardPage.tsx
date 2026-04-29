@@ -11,62 +11,37 @@ export const DashboardPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-dark">
-      {/* Header */}
-      <header className="bg-dark-800/50 backdrop-blur-md border-b border-dark-700/50 py-4">
-        <div className="max-w-7xl mx-auto px-4 flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-white">ZetaFin Dashboard</h1>
-            <p className="text-dark-400 text-sm">Bem-vindo, {user?.name}!</p>
-          </div>
-          <button
-            onClick={handleLogout}
-            className="px-4 py-2 rounded-lg bg-red-500/10 text-red-400 border border-red-500/30 hover:bg-red-500/20 transition-colors"
-          >
-            Logout
-          </button>
+    <div style={{ minHeight:'100vh', background:'#080713', fontFamily:"system-ui,sans-serif", color:'white' }}>
+      <header style={{ background:'rgba(12,12,22,.9)', backdropFilter:'blur(12px)', borderBottom:'1px solid rgba(139,92,246,.2)', padding:'16px 24px', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+        <div>
+          <h1 style={{ fontSize:'20px', fontWeight:700, margin:0 }}>ZetaFin</h1>
+          <p style={{ color:'rgba(156,163,175,.65)', fontSize:'13px', margin:0 }}>Bem-vindo, {user?.name}!</p>
         </div>
+        <button
+          onClick={handleLogout}
+          style={{ padding:'8px 16px', borderRadius:'9px', background:'rgba(239,68,68,.1)', color:'#f87171', border:'1px solid rgba(239,68,68,.25)', cursor:'pointer', fontSize:'13px', fontFamily:'inherit' }}
+        >
+          Sair
+        </button>
       </header>
 
-      {/* Content */}
-      <main className="max-w-7xl mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* User Card */}
-          <div className="bg-dark-800/50 backdrop-blur-md border border-dark-700/50 rounded-2xl p-6">
-            <div className="flex items-center gap-4">
-              <img
-                src={user?.avatar}
-                alt={user?.name}
-                className="w-16 h-16 rounded-full"
-              />
-              <div>
-                <p className="text-dark-400 text-sm">Usuário</p>
-                <p className="text-white font-semibold">{user?.name}</p>
-                <p className="text-dark-500 text-sm">{user?.email}</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Coming Soon Cards */}
+      <main style={{ maxWidth:'900px', margin:'0 auto', padding:'40px 24px' }}>
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(200px,1fr))', gap:'16px' }}>
           {[
-            { title: 'Saldo', value: 'R$ 2.300,00' },
-            { title: 'Gastos', value: 'R$ 450,00' },
-            { title: 'Economia', value: 'R$ 1.850,00' },
-          ].map((card, idx) => (
-            <div
-              key={idx}
-              className="bg-gradient-to-br from-primary-500/10 to-secondary-600/10 backdrop-blur-md border border-primary-500/20 rounded-2xl p-6"
-            >
-              <p className="text-dark-400 text-sm">{card.title}</p>
-              <p className="text-2xl font-bold text-white mt-2">{card.value}</p>
+            { label:'Saldo atual', value:'R$ 2.300,00', color:'rgba(139,92,246,.2)' },
+            { label:'Gastos do mês', value:'R$ 450,00', color:'rgba(239,68,68,.15)' },
+            { label:'Economias', value:'R$ 1.850,00', color:'rgba(34,197,94,.15)' },
+          ].map((card, i) => (
+            <div key={i} style={{ background:card.color, border:'1px solid rgba(255,255,255,.08)', borderRadius:'16px', padding:'20px' }}>
+              <p style={{ color:'rgba(156,163,175,.7)', fontSize:'13px', margin:'0 0 8px' }}>{card.label}</p>
+              <p style={{ fontSize:'22px', fontWeight:700, margin:0 }}>{card.value}</p>
             </div>
           ))}
         </div>
 
-        {/* Coming Soon Message */}
-        <div className="mt-12 text-center p-8 rounded-2xl bg-dark-800/50 border border-dark-700/50">
-          <p className="text-dark-400">
-            🚀 Mais funcionalidades em breve...
+        <div style={{ marginTop:'32px', background:'rgba(12,12,22,.8)', border:'1px solid rgba(139,92,246,.15)', borderRadius:'16px', padding:'32px', textAlign:'center' }}>
+          <p style={{ color:'rgba(156,163,175,.6)', fontSize:'15px' }}>
+            🚀 Dashboard completo em construção...
           </p>
         </div>
       </main>

@@ -1,12 +1,12 @@
-import { createContext, useContext, ReactNode } from 'react'
+import { createContext, useContext } from 'react'
+import type { ReactNode } from 'react'
 import { useAuth } from '../../domains/auth/hooks/useAuth'
-import { AuthContextType } from '../../domains/auth/types'
+import type { AuthContextType } from '../../domains/auth/types'
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const authValue = useAuth()
-
   return (
     <AuthContext.Provider value={authValue}>
       {children}

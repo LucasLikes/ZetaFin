@@ -1,9 +1,9 @@
 import { useState, useCallback } from 'react'
-import { User } from '../types'
+import type { User } from '../types'
 import { authService } from '../services/auth.service'
 
 export const useAuth = () => {
-  const [user, setUser] = useState<User | null>(authService.getStoredUser())
+  const [user, setUser] = useState<User | null>(() => authService.getStoredUser())
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
