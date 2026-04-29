@@ -1,7 +1,6 @@
-import { User } from '../types'
+import type { User } from '../types';
 
-// Mock data
-const mockUsers = {
+const mockUsers: Record<string, { id: string; email: string; name: string; avatar: string; password: string }> = {
   'user@example.com': {
     id: '1',
     email: 'user@example.com',
@@ -12,21 +11,19 @@ const mockUsers = {
   'test@test.com': {
     id: '2',
     email: 'test@test.com',
-    name: 'Test User',
-    avatar: 'https://i.pravatar.cc/150?img=2',
+    name: 'Ana Martins',
+    avatar: 'https://i.pravatar.cc/150?img=5',
     password: '123456',
   },
 }
 
 export const authService = {
   login: async (email: string, password: string): Promise<User> => {
-    // Simular delay de requisição
     return new Promise((resolve, reject) => {
       setTimeout(() => {
-        const user = mockUsers[email as keyof typeof mockUsers]
-        
+        const user = mockUsers[email]
         if (user && user.password === password) {
-          const { password: _, ...userWithoutPassword } = user
+          const { password: _p, ...userWithoutPassword } = user
           resolve(userWithoutPassword)
         } else {
           reject(new Error('Email ou senha incorretos'))
@@ -44,20 +41,24 @@ export const authService = {
           name: 'Google User',
           avatar: 'https://i.pravatar.cc/150?img=3',
         })
-      }, 1500)
+      }, 1200)
     })
   },
 
   logout: (): void => {
-    localStorage.removeItem('user')
+    localStorage.removeItem('zetafin_user')
   },
 
   getStoredUser: (): User | null => {
-    const stored = localStorage.getItem('user')
-    return stored ? JSON.parse(stored) : null
+    try {
+      const stored = localStorage.getItem('zetafin_user')
+      return stored ? JSON.parse(stored) : null
+    } catch {
+      return null
+    }
   },
 
   storeUser: (user: User): void => {
-    localStorage.setItem('user', JSON.stringify(user))
+    localStorage.setItem('zetafin_user', JSON.stringify(user))
   },
 }
