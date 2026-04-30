@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from './app/providers/AuthProvider'
 import { ProtectedRoute } from './app/providers/ProtectedRoute'
-import { LoginPage } from './domains/auth/pages/LoginPage'
+import { LoginPageNew } from './domains/auth/pages/LoginPageNew'
 import { DashboardPage } from './domains/finance/pages/DashboardPage'
 
 function App() {
@@ -9,7 +9,7 @@ function App() {
     <Router>
       <AuthProvider>
         <Routes>
-          <Route path="/login" element={<LoginPage />} />
+          <Route path="/login" element={<LoginPageNew />} />
           <Route
             path="/dashboard"
             element={
