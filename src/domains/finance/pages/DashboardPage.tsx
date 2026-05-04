@@ -34,30 +34,34 @@ const PAGE_TITLES: Record<Page, string> = { inicio:'Dashboard', historico:'Hist�
 
 // ─── constantes de estilo ────────────────────────────────────────────────────
 const C = {
-  bg:      '#0b0f1a',
-  surface: '#111827',
-  surf2:   'rgba(255,255,255,.04)',
-  border:  '#1e2d42',
-  text:    '#e8edf5',
-  muted:   '#4d6080',
-  muted2:  '#6b85a6',
-  green:   '#34d399',
-  greenDim:'rgba(52,211,153,.08)',
-  greenBdr:'rgba(52,211,153,.2)',
-  red:     '#f87171',
-  redDim:  'rgba(248,113,113,.08)',
-  redBdr:  'rgba(248,113,113,.2)',
-  amber:   '#fbbf24',
-  amberDim:'rgba(251,191,36,.08)',
-  amberBdr:'rgba(251,191,36,.2)',
-  blue:    '#60a5fa',
+  // Paleta ZetaFin (alinhada com login)
+  bg:      '#F8FAFB',           // Fundo principal - cinza claro
+  surface: '#FFFFFF',           // Cards e superfícies - branco puro
+  surf2:   'rgba(127,229,168,.05)', // Hover states
+  border:  '#E5E7EB',           // Bordas - cinza claro
+  text:    '#1A1A1A',           // Texto principal - escuro
+  muted:   '#757575',           // Texto secundário - cinza médio
+  muted2:  '#9CA3AF',           // Texto terciário - cinza claro
+  green:   '#7FE5A8',           // Verde principal (login)
+  greenDim:'rgba(127,229,168,.08)',
+  greenBdr:'rgba(127,229,168,.25)',
+  red:     '#F44336',           // Erro/Despesa
+  redDim:  'rgba(244,67,54,.08)',
+  redBdr:  'rgba(244,67,54,.25)',
+  amber:   '#FFA726',           // Aviso
+  amberDim:'rgba(255,167,38,.08)',
+  amberBdr:'rgba(255,167,38,.25)',
+  blue:    '#42A5F5',           // Info
+  success: '#4CAF50',           // Sucesso (alternativo)
+  shadow:  '0 1px 3px rgba(0,0,0,.06), 0 2px 6px rgba(0,0,0,.04)',
+  shadowLg:'0 4px 12px rgba(0,0,0,.08), 0 8px 24px rgba(0,0,0,.06)',
 }
 
 const inputBase: React.CSSProperties = {
-  width: '100%', padding: '10px 12px', borderRadius: '8px',
-  background: C.bg, border: `1px solid ${C.border}`,
-  color: C.text, fontSize: '13px', outline: 'none', boxSizing: 'border-box',
-  fontFamily: 'inherit',
+  width: '100%', padding: '11px 13px', borderRadius: '10px',
+  background: C.surface, border: `1.5px solid ${C.border}`,
+  color: C.text, fontSize: '14px', outline: 'none', boxSizing: 'border-box',
+  fontFamily: 'inherit', fontWeight: 500,
 }
 
 // ─── componentes menores ─────────────────────────────────────────────────────
@@ -67,11 +71,14 @@ const Skeleton = ({ h = 80 }: { h?: number }) => (
 )
 
 const MetricCard = ({ label, value, color, sub, accent }: { label:string; value:string; color:string; sub?:string; accent:string }) => (
-  <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: '12px', padding: '16px', position: 'relative', overflow: 'hidden' }}>
-    <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '2px', background: accent }} />
-    <div style={{ fontSize: '11px', color: C.muted, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: '8px' }}>{label}</div>
-    <div style={{ fontSize: '22px', fontWeight: 700, color, letterSpacing: '-.5px', lineHeight: 1 }}>{value}</div>
-    {sub && <div style={{ fontSize: '11px', color: C.muted, marginTop: '5px' }}>{sub}</div>}
+  <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: '14px', padding: '20px', position: 'relative', overflow: 'hidden', boxShadow: C.shadow, transition: 'all .3s ease' }}
+    onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.boxShadow = C.shadowLg; (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-2px)' }}
+    onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.boxShadow = C.shadow; (e.currentTarget as HTMLDivElement).style.transform = 'translateY(0)' }}
+  >
+    <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '3px', background: accent }} />
+    <div style={{ fontSize: '12px', color: C.muted, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: '10px' }}>{label}</div>
+    <div style={{ fontSize: '26px', fontWeight: 800, color, letterSpacing: '-.5px', lineHeight: 1, marginBottom: '8px' }}>{value}</div>
+    {sub && <div style={{ fontSize: '12px', color: C.muted, marginTop: '6px' }}>{sub}</div>}
   </div>
 )
 
@@ -80,24 +87,24 @@ const TxRow = ({ tx, onDelete }: { tx: Transaction; onDelete?: (id: string) => v
   const clr = isE ? C.green : C.red
   const bg  = isE ? C.greenDim : C.redDim
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 8px', borderRadius: '8px', transition: 'background .15s' }}
+    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 0', borderBottom: `1px solid ${C.border}`, transition: 'background .2s' }}
       onMouseEnter={e => (e.currentTarget.style.background = C.surf2)}
       onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
     >
-      <div style={{ width: '34px', height: '34px', borderRadius: '8px', background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, color: clr }}>
+      <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, color: clr }}>
         {isE ? <IcUp /> : <IcDown />}
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: '13px', fontWeight: 500, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{tx.descricao}</div>
-        <div style={{ fontSize: '11px', color: C.muted, marginTop: '1px' }}>{tx.categoria} · {tx.data}</div>
+        <div style={{ fontSize: '14px', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: C.text }}>{tx.descricao}</div>
+        <div style={{ fontSize: '12px', color: C.muted, marginTop: '2px' }}>{tx.categoria} · {tx.data}</div>
       </div>
       <div style={{ textAlign: 'right', flexShrink: 0 }}>
-        <div style={{ fontSize: '13px', fontWeight: 700, color: clr }}>{isE ? '+' : '−'}{brl(tx.valor)}</div>
+        <div style={{ fontSize: '14px', fontWeight: 800, color: clr }}>{isE ? '+' : '−'}{brl(tx.valor)}</div>
       </div>
       {onDelete && (
-        <button onClick={() => onDelete(tx.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.muted, display: 'flex', padding: '4px', borderRadius: '5px', transition: 'color .15s', flexShrink: 0 }}
-          onMouseEnter={e => (e.currentTarget.style.color = C.red)}
-          onMouseLeave={e => (e.currentTarget.style.color = C.muted)}
+        <button onClick={() => onDelete(tx.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.muted, display: 'flex', padding: '6px', borderRadius: '7px', transition: 'all .2s', flexShrink: 0 }}
+          onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = C.red; (e.currentTarget as HTMLButtonElement).style.background = 'rgba(244,67,54,.08)' }}
+          onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = C.muted; (e.currentTarget as HTMLButtonElement).style.background = 'none' }}
         ><IcTrash /></button>
       )}
     </div>
@@ -199,11 +206,11 @@ const BarChart = () => {
 
 const PageInicio = ({ finance, onAddTx, onGoPage }: { finance: ReturnType<typeof useFinance>; onAddTx:()=>void; onGoPage:(p:Page)=>void }) => (
   <div>
-    <div style={{ display:'flex', alignItems:'center', gap:'8px', padding:'10px 14px', borderRadius:'8px', marginBottom:'16px', background:C.amberDim, border:`1px solid ${C.amberBdr}`, fontSize:'12px', color:C.amber }}>
+    <div style={{ display:'flex', alignItems:'center', gap:'10px', padding:'14px 16px', borderRadius:'11px', marginBottom:'20px', background:'rgba(255,167,38,.08)', border:`1.5px solid rgba(255,167,38,.25)`, fontSize:'13px', color:'#FFA726', fontWeight: 500 }}>
       <IcAlert /> Você está gastando acima do padrão este mês — delivery representa 31% das despesas.
     </div>
 
-    <div className="metrics-grid" style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:'10px', marginBottom:'16px' }}>
+    <div className="metrics-grid" style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:'14px', marginBottom:'20px' }}>
       {finance.loading ? [1,2,3,4].map(k=><Skeleton key={k}/>) : <>
         <MetricCard label="Saldo do mês"  value={brl(finance.summary?.saldo??0)}        color={C.green} accent={C.green} sub="entradas − despesas"/>
         <MetricCard label="Entradas"      value={brl(finance.summary?.entradas??0)}      color={C.green} accent={C.green} sub="mês atual"/>
@@ -212,58 +219,67 @@ const PageInicio = ({ finance, onAddTx, onGoPage }: { finance: ReturnType<typeof
       </>}
     </div>
 
-    <div className="row2-grid" style={{ display:'grid', gridTemplateColumns:'1fr 300px', gap:'14px', marginBottom:'14px' }}>
-      <div style={{ background:C.surface, border:`1px solid ${C.border}`, borderRadius:'12px', padding:'16px' }}>
-        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'12px' }}>
-          <span style={{ fontSize:'13px', fontWeight:600 }}>Gastos por mês</span>
-          <div style={{ display:'flex', gap:'12px' }}>
+    <div className="row2-grid" style={{ display:'grid', gridTemplateColumns:'1fr 320px', gap:'16px', marginBottom:'16px' }}>
+      <div style={{ background:C.surface, border:`1.5px solid ${C.border}`, borderRadius:'14px', padding:'20px', boxShadow: C.shadow }}>
+        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'16px' }}>
+          <span style={{ fontSize:'15px', fontWeight:700, color: C.text }}>Gastos por mês</span>
+          <div style={{ display:'flex', gap:'14px' }}>
             {[[C.red,'Despesas'],[C.green,'Entradas']].map(([c,l])=>(
-              <div key={String(l)} style={{ display:'flex', alignItems:'center', gap:'5px', fontSize:'11px', color:C.muted }}>
+              <div key={String(l)} style={{ display:'flex', alignItems:'center', gap:'6px', fontSize:'12px', color:C.muted, fontWeight: 500 }}>
                 <div style={{ width:'8px', height:'8px', borderRadius:'2px', background:String(c) }}/>{l}
               </div>
             ))}
           </div>
         </div>
-        <div style={{ height:'130px', position:'relative' }}><BarChart /></div>
+        <div style={{ height:'140px', position:'relative' }}><BarChart /></div>
       </div>
 
-      <div style={{ background:C.surface, border:`1px solid ${C.border}`, borderRadius:'12px', padding:'16px' }}>
-        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'12px' }}>
-          <span style={{ fontSize:'13px', fontWeight:600 }}>Dívidas ativas</span>
-          <button onClick={()=>onGoPage('dividas')} style={{ fontSize:'11px', padding:'4px 9px', borderRadius:'6px', border:`1px solid ${C.border}`, background:'none', color:C.muted, cursor:'pointer' }}>Ver todas</button>
+      <div style={{ background:C.surface, border:`1.5px solid ${C.border}`, borderRadius:'14px', padding:'20px', boxShadow: C.shadow }}>
+        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'14px' }}>
+          <span style={{ fontSize:'15px', fontWeight:700, color: C.text }}>Dívidas ativas</span>
+          <button onClick={()=>onGoPage('dividas')} style={{ fontSize:'12px', padding:'6px 11px', borderRadius:'7px', border:`1px solid ${C.border}`, background:C.surface, color:C.muted, cursor:'pointer', fontWeight: 600, transition: 'all .2s' }}
+            onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = C.green; (e.currentTarget as HTMLButtonElement).style.borderColor = C.greenBdr;  }}
+            onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = C.muted; (e.currentTarget as HTMLButtonElement).style.borderColor = C.border }}
+          >Ver todas</button>
         </div>
         {finance.debts.slice(0,2).map(d=>{
           const pct=Math.min((d.pago/d.total)*100,100)
           const clr=pct>=100?C.green:pct>60?C.amber:C.red
           return (
-            <div key={d.id} style={{ background:C.surf2, border:`1px solid ${C.border}`, borderRadius:'8px', padding:'12px', marginBottom:'8px' }}>
-              <div style={{ display:'flex', justifyContent:'space-between', marginBottom:'6px' }}>
-                <div style={{ fontSize:'12px', fontWeight:600 }}>{d.nome}</div>
-                <span style={{ fontSize:'10px', fontWeight:600, padding:'2px 7px', borderRadius:'20px', background:`${clr}18`, color:clr, border:`1px solid ${clr}30` }}>{pct.toFixed(0)}%</span>
+            <div key={d.id} style={{ background:C.bg, border:`1px solid ${C.border}`, borderRadius:'10px', padding:'14px', marginBottom:'10px' }}>
+              <div style={{ display:'flex', justifyContent:'space-between', marginBottom:'8px' }}>
+                <div style={{ fontSize:'13px', fontWeight:700, color: C.text }}>{d.nome}</div>
+                <span style={{ fontSize:'11px', fontWeight:700, padding:'3px 9px', borderRadius:'6px', background:`${clr}18`, color:clr, border:`1px solid ${clr}30` }}>{pct.toFixed(0)}%</span>
               </div>
-              <div style={{ background:C.border, borderRadius:'4px', height:'5px', overflow:'hidden', marginBottom:'5px' }}>
-                <div style={{ height:'100%', borderRadius:'4px', background:clr, width:`${pct.toFixed(1)}%`, transition:'width .5s ease' }}/>
+              <div style={{ background:C.border, borderRadius:'5px', height:'6px', overflow:'hidden', marginBottom:'6px' }}>
+                <div style={{ height:'100%', borderRadius:'5px', background:clr, width:`${pct.toFixed(1)}%`, transition:'width .5s ease' }}/>
               </div>
-              <div style={{ display:'flex', justifyContent:'space-between', fontSize:'11px', color:C.muted }}>
+              <div style={{ display:'flex', justifyContent:'space-between', fontSize:'11px', color:C.muted, fontWeight: 500 }}>
                 <span>Pago: {brl(d.pago)}</span><span>Resta: {brl(Math.max(d.total-d.pago,0))}</span>
               </div>
             </div>
           )
         })}
-        {finance.debts.length===0 && <div style={{ textAlign:'center', padding:'20px', color:C.muted, fontSize:'12px' }}>Nenhuma dívida</div>}
+        {finance.debts.length===0 && <div style={{ textAlign:'center', padding:'24px 16px', color:C.muted, fontSize:'13px' }}>Nenhuma dívida</div>}
       </div>
     </div>
 
-    <div style={{ background:C.surface, border:`1px solid ${C.border}`, borderRadius:'12px', padding:'16px' }}>
-      <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'10px' }}>
-        <span style={{ fontSize:'13px', fontWeight:600 }}>Últimas transações</span>
-        <div style={{ display:'flex', gap:'6px' }}>
-          <button onClick={onAddTx} style={{ display:'flex', alignItems:'center', gap:'5px', padding:'6px 11px', borderRadius:'7px', border:'none', background:C.green, color:'#0a1a12', fontSize:'12px', fontWeight:700, cursor:'pointer' }}><IcPlus/> Nova</button>
-          <button onClick={()=>onGoPage('historico')} style={{ padding:'6px 10px', borderRadius:'7px', border:`1px solid ${C.border}`, background:'none', color:C.muted, fontSize:'12px', cursor:'pointer' }}>Ver tudo</button>
+    <div style={{ background:C.surface, border:`1.5px solid ${C.border}`, borderRadius:'14px', padding:'20px', boxShadow: C.shadow }}>
+      <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'14px' }}>
+        <span style={{ fontSize:'15px', fontWeight:700, color: C.text }}>Últimas transações</span>
+        <div style={{ display:'flex', gap:'8px' }}>
+          <button onClick={onAddTx} style={{ display:'flex', alignItems:'center', gap:'6px', padding:'8px 13px', borderRadius:'9px', border:'none', background:C.green, color:'#1A1A1A', fontSize:'13px', fontWeight:700, cursor:'pointer', transition: 'all .2s', boxShadow: '0 2px 4px rgba(127,229,168,.2)' }}
+            onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 4px 8px rgba(127,229,168,.3)'; (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-1px)' }}
+            onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 2px 4px rgba(127,229,168,.2)'; (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(0)' }}
+          ><IcPlus/> Nova</button>
+          <button onClick={()=>onGoPage('historico')} style={{ padding:'8px 13px', borderRadius:'9px', border:`1.5px solid ${C.border}`, background:C.surface, color:C.muted, fontSize:'13px', fontWeight: 600, cursor:'pointer', transition: 'all .2s' }}
+            onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = C.green; (e.currentTarget as HTMLButtonElement).style.color = C.green }}
+            onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = C.border; (e.currentTarget as HTMLButtonElement).style.color = C.muted }}
+          >Ver tudo</button>
         </div>
       </div>
       {finance.loading
-        ? [1,2,3].map(k=><Skeleton key={k} h={48}/>)
+        ? [1,2,3].map(k=><Skeleton key={k} h={50}/>)
         : finance.transactions.slice(0,6).map(tx=><TxRow key={tx.id} tx={tx}/>)
       }
     </div>
@@ -278,27 +294,27 @@ const PageHistorico = ({ finance }: { finance: ReturnType<typeof useFinance> }) 
     (!busca || t.descricao.toLowerCase().includes(busca.toLowerCase()) || t.categoria.toLowerCase().includes(busca.toLowerCase()))
   )
   return (
-    <div style={{ background:C.surface, border:`1px solid ${C.border}`, borderRadius:'12px', padding:'16px' }}>
-      <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'14px', flexWrap:'wrap', gap:'8px' }}>
-        <span style={{ fontSize:'13px', fontWeight:600 }}>Histórico completo</span>
-        <div style={{ display:'flex', gap:'5px' }}>
+    <div style={{ background:C.surface, border:`1.5px solid ${C.border}`, borderRadius:'14px', padding:'20px', boxShadow: C.shadow }}>
+      <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'16px', flexWrap:'wrap', gap:'10px' }}>
+        <span style={{ fontSize:'15px', fontWeight:700, color: C.text }}>Histórico completo</span>
+        <div style={{ display:'flex', gap:'6px' }}>
           {(['all','entrada','despesa'] as const).map(f=>{
             const labels={all:'Todos',entrada:'Entradas',despesa:'Despesas'}
             const active=filter===f
             const ac = f==='despesa'?C.red:C.green
-            return <button key={f} onClick={()=>setFilter(f)} style={{ padding:'5px 11px', borderRadius:'20px', border:'1px solid', fontSize:'11px', fontWeight:600, cursor:'pointer', transition:'all .15s', background:active?`${ac}18`:C.surf2, color:active?ac:C.muted, borderColor:active?`${ac}30`:C.border }}>{labels[f]}</button>
+            return <button key={f} onClick={()=>setFilter(f)} style={{ padding:'6px 13px', borderRadius:'8px', border:`1.5px solid ${active?ac:C.border}`, fontSize:'12px', fontWeight:700, cursor:'pointer', transition:'all .2s', background:active?`${ac}18`:C.surface, color:active?ac:C.muted }}>{labels[f]}</button>
           })}
         </div>
       </div>
-      <div style={{ position:'relative', marginBottom:'12px' }}>
-        <span style={{ position:'absolute', left:'11px', top:'50%', transform:'translateY(-50%)', color:C.muted }}><IcSearch/></span>
-        <input value={busca} onChange={e=>setBusca(e.target.value)} placeholder="Buscar por descrição ou categoria..." style={{ ...inputBase, paddingLeft:'34px' }}
+      <div style={{ position:'relative', marginBottom:'14px' }}>
+        <span style={{ position:'absolute', left:'13px', top:'50%', transform:'translateY(-50%)', color:C.muted }}><IcSearch/></span>
+        <input value={busca} onChange={e=>setBusca(e.target.value)} placeholder="Buscar por descrição ou categoria..." style={{ ...inputBase, paddingLeft:'40px' }}
           onFocus={e=>(e.target.style.borderColor=C.green)} onBlur={e=>(e.target.style.borderColor=C.border)}/>
       </div>
       {finance.loading
-        ? [1,2,3,4,5].map(k=><Skeleton key={k} h={48}/>)
+        ? [1,2,3,4,5].map(k=><Skeleton key={k} h={50}/>)
         : filtered.length===0
-          ? <div style={{ textAlign:'center', padding:'32px', color:C.muted, fontSize:'13px' }}>Nenhum resultado</div>
+          ? <div style={{ textAlign:'center', padding:'40px 24px', color:C.muted, fontSize:'14px' }}>Nenhum resultado</div>
           : filtered.map(tx=><TxRow key={tx.id} tx={tx} onDelete={finance.deleteTransaction}/>)
       }
     </div>
@@ -460,34 +476,40 @@ export const DashboardPage = () => {
         }
       `}</style>
 
-      <div style={{ display:'flex', flexDirection:'column', minHeight:'100vh', background:C.bg, color:C.text, fontFamily:"-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif", fontSize:'14px' }}>
+      <div style={{ display:'flex', flexDirection:'column', minHeight:'100vh', background:C.bg, color:C.text, fontFamily:"-apple-system,BlinkMacSystemFont,'Segoe UI','Roboto','Oxygen','Ubuntu','Cantarell',sans-serif", fontSize:'14px' }}>
 
         {/* topbar */}
-        <nav style={{ display:'flex', alignItems:'center', justifyContent:'space-between', height:'52px', padding:'0 16px', background:C.surface, borderBottom:`1px solid ${C.border}`, position:'sticky', top:0, zIndex:100, flexShrink:0, gap:'12px' }}>
-          <div style={{ display:'flex', alignItems:'center', gap:'14px', overflow:'hidden' }}>
-            <div style={{ display:'flex', alignItems:'center', gap:'8px', flexShrink:0 }}>
-              <div style={{ width:'28px', height:'28px', borderRadius:'8px', background:'linear-gradient(135deg,#6366f1,#34d399)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'14px', fontWeight:800, color:'#fff' }}>Z</div>
-              <span style={{ fontSize:'15px', fontWeight:700, letterSpacing:'-.3px', whiteSpace:'nowrap' }}>ZetaFin</span>
+        <nav style={{ display:'flex', alignItems:'center', justifyContent:'space-between', height:'56px', padding:'0 20px', background:C.surface, borderBottom:`1px solid ${C.border}`, position:'sticky', top:0, zIndex:100, flexShrink:0, gap:'14px', boxShadow: '0 1px 3px rgba(0,0,0,.05)' }}>
+          <div style={{ display:'flex', alignItems:'center', gap:'16px', overflow:'hidden' }}>
+            <div style={{ display:'flex', alignItems:'center', gap:'10px', flexShrink:0 }}>
+              <div style={{ width:'32px', height:'32px', borderRadius:'10px', background:'linear-gradient(135deg,#7FE5A8,#6DD99A)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'16px', fontWeight:800, color:'#1A1A1A' }}>Ζ</div>
+              <span style={{ fontSize:'16px', fontWeight:800, letterSpacing:'-.3px', whiteSpace:'nowrap', color: C.text }}>ZetaFin</span>
             </div>
-            <div className="dtabs" style={{ display:'flex', gap:'2px' }}>
+            <div className="dtabs" style={{ display:'flex', gap:'3px' }}>
               {NAV.map(({id,label,icon:Ic})=>(
-                <button key={id} onClick={()=>setPage(id)} style={{ display:'flex', alignItems:'center', gap:'6px', padding:'6px 12px', borderRadius:'7px', border:'none', background:page===id?C.surf2:'transparent', color:page===id?C.green:C.muted, fontSize:'13px', fontWeight:500, cursor:'pointer', transition:'all .18s', whiteSpace:'nowrap' }}>
+                <button key={id} onClick={()=>setPage(id)} style={{ display:'flex', alignItems:'center', gap:'6px', padding:'8px 14px', borderRadius:'9px', border:'none', background:page===id?C.greenDim:'transparent', color:page===id?C.green:C.muted, fontSize:'14px', fontWeight:600, cursor:'pointer', transition:'all .2s', whiteSpace:'nowrap' }}>
                   <Ic/>{label}
                 </button>
               ))}
             </div>
-            <span className="mob-title" style={{ fontSize:'15px', fontWeight:600 }}>{PAGE_TITLES[page]}</span>
+            <span className="mob-title" style={{ fontSize:'16px', fontWeight:700, color: C.text }}>{PAGE_TITLES[page]}</span>
           </div>
-          <div style={{ display:'flex', alignItems:'center', gap:'8px', flexShrink:0 }}>
-            <button onClick={()=>setModal(true)} style={{ display:'flex', alignItems:'center', gap:'5px', padding:'7px 12px', borderRadius:'8px', border:'none', background:C.green, color:'#0a1a12', fontSize:'13px', fontWeight:700, cursor:'pointer', whiteSpace:'nowrap' }}>
+          <div style={{ display:'flex', alignItems:'center', gap:'10px', flexShrink:0 }}>
+            <button onClick={()=>setModal(true)} style={{ display:'flex', alignItems:'center', gap:'6px', padding:'9px 14px', borderRadius:'9px', border:'none', background:C.green, color:'#1A1A1A', fontSize:'14px', fontWeight:700, cursor:'pointer', whiteSpace:'nowrap', transition:'all .2s', boxShadow: '0 2px 4px rgba(127,229,168,.2)' }}
+              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 4px 8px rgba(127,229,168,.3)'; (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-1px)' }}
+              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 2px 4px rgba(127,229,168,.2)'; (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(0)' }}
+            >
               <IcPlus/><span>Nova</span>
             </button>
-            <button onClick={handleLogout} title="Sair" style={{ display:'flex', alignItems:'center', gap:'5px', padding:'7px 10px', borderRadius:'8px', border:`1px solid ${C.redBdr}`, background:C.redDim, color:C.red, fontSize:'12px', fontWeight:500, cursor:'pointer' }}>
+            <button onClick={handleLogout} title="Sair" style={{ display:'flex', alignItems:'center', gap:'6px', padding:'8px 12px', borderRadius:'9px', border:`1.5px solid ${C.border}`, background:C.surface, color:C.muted, fontSize:'13px', fontWeight:600, cursor:'pointer', transition:'all .2s' }}
+              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = C.red; (e.currentTarget as HTMLButtonElement).style.color = C.red; (e.currentTarget as HTMLButtonElement).style.background = 'rgba(244,67,54,.04)' }}
+              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = C.border; (e.currentTarget as HTMLButtonElement).style.color = C.muted; (e.currentTarget as HTMLButtonElement).style.background = C.surface }}
+            >
               <IcLogout/><span>Sair</span>
             </button>
             {user?.avatar
-              ? <img src={user.avatar} alt={user.name} style={{ width:'30px', height:'30px', borderRadius:'50%', objectFit:'cover', flexShrink:0 }}/>
-              : <div style={{ width:'30px', height:'30px', borderRadius:'50%', background:'linear-gradient(135deg,#6366f1,#818cf8)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'12px', fontWeight:600, color:'#fff', flexShrink:0 }}>{user?.name?.charAt(0).toUpperCase()??'?'}</div>
+              ? <img src={user.avatar} alt={user.name} style={{ width:'32px', height:'32px', borderRadius:'8px', objectFit:'cover', flexShrink:0, border: `2px solid ${C.border}` }}/>
+              : <div style={{ width:'32px', height:'32px', borderRadius:'8px', background:'linear-gradient(135deg,#7FE5A8,#6DD99A)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'13px', fontWeight:700, color:'#1A1A1A', flexShrink:0 }}>{user?.name?.charAt(0).toUpperCase()??'?'}</div>
             }
           </div>
         </nav>
@@ -495,30 +517,30 @@ export const DashboardPage = () => {
         <div style={{ display:'flex', flex:1, overflow:'hidden' }}>
 
           {/* sidebar desktop */}
-          <aside className="sidebar" style={{ width:'200px', flexShrink:0, background:C.surface, borderRight:`1px solid ${C.border}`, padding:'14px 10px', flexDirection:'column', gap:'2px', overflowY:'auto' }}>
-            <div style={{ fontSize:'10px', fontWeight:600, color:'#2d4a6a', letterSpacing:'.08em', textTransform:'uppercase', padding:'8px 12px 4px', marginBottom:'2px' }}>Menu</div>
+          <aside className="sidebar" style={{ width:'220px', flexShrink:0, background:C.surface, borderRight:`1.5px solid ${C.border}`, padding:'16px 12px', flexDirection:'column', gap:'3px', overflowY:'auto', boxShadow: '1px 0 2px rgba(0,0,0,.02)' }}>
+            <div style={{ fontSize:'10px', fontWeight:700, color:C.muted, letterSpacing:'.08em', textTransform:'uppercase', padding:'10px 12px 6px', marginBottom:'4px' }}>Menu</div>
             {NAV.map(({id,label,icon:Ic})=>(
-              <button key={id} onClick={()=>setPage(id)} style={{ display:'flex', alignItems:'center', gap:'10px', padding:'9px 12px', borderRadius:'8px', border:`1px solid ${page===id?C.greenBdr:'transparent'}`, background:page===id?C.greenDim:'none', color:page===id?C.green:C.muted, fontSize:'13px', fontWeight:500, cursor:'pointer', transition:'all .18s', width:'100%', textAlign:'left' }}
+              <button key={id} onClick={()=>setPage(id)} style={{ display:'flex', alignItems:'center', gap:'11px', padding:'11px 12px', borderRadius:'10px', border:`1.5px solid ${page===id?C.greenBdr:'transparent'}`, background:page===id?C.greenDim:'none', color:page===id?C.green:C.muted, fontSize:'14px', fontWeight:600, cursor:'pointer', transition:'all .2s', width:'100%', textAlign:'left' }}
                 onMouseEnter={e=>{ if(page!==id){(e.currentTarget as HTMLButtonElement).style.background=C.surf2;(e.currentTarget as HTMLButtonElement).style.color=C.text} }}
                 onMouseLeave={e=>{ if(page!==id){(e.currentTarget as HTMLButtonElement).style.background='none';(e.currentTarget as HTMLButtonElement).style.color=C.muted} }}
               ><Ic/>{label}</button>
             ))}
             <div style={{ marginTop:'auto', paddingTop:'16px', borderTop:`1px solid ${C.border}` }}>
-              <div style={{ display:'flex', alignItems:'center', gap:'8px', padding:'8px 12px' }}>
+              <div style={{ display:'flex', alignItems:'center', gap:'10px', padding:'10px 12px' }}>
                 {user?.avatar
-                  ? <img src={user.avatar} alt={user.name} style={{ width:'28px', height:'28px', borderRadius:'50%' }}/>
-                  : <div style={{ width:'28px', height:'28px', borderRadius:'50%', background:'linear-gradient(135deg,#6366f1,#818cf8)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'11px', fontWeight:600, color:'#fff' }}>{user?.name?.charAt(0).toUpperCase()}</div>
+                  ? <img src={user.avatar} alt={user.name} style={{ width:'32px', height:'32px', borderRadius:'8px', objectFit:'cover', border: `1.5px solid ${C.border}` }}/>
+                  : <div style={{ width:'32px', height:'32px', borderRadius:'8px', background:'linear-gradient(135deg,#7FE5A8,#6DD99A)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'13px', fontWeight:700, color:'#1A1A1A' }}>{user?.name?.charAt(0).toUpperCase()}</div>
                 }
                 <div style={{ overflow:'hidden' }}>
-                  <div style={{ fontSize:'12px', fontWeight:600, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{user?.name}</div>
-                  <div style={{ fontSize:'10px', color:C.muted, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{user?.email}</div>
+                  <div style={{ fontSize:'13px', fontWeight:700, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis', color: C.text }}>{user?.name}</div>
+                  <div style={{ fontSize:'11px', color:C.muted, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{user?.email}</div>
                 </div>
               </div>
             </div>
           </aside>
 
           {/* conteúdo */}
-          <main className="content-pad" style={{ flex:1, overflowY:'auto', padding:'20px', paddingBottom:'20px' }}>
+          <main className="content-pad" style={{ flex:1, overflowY:'auto', padding:'28px 24px', paddingBottom:'28px', backgroundColor: C.bg }}>
             <div key={page} className="page-anim">
               {page==='inicio'    && <PageInicio    finance={finance} onAddTx={()=>setModal(true)} onGoPage={setPage}/>}
               {page==='historico' && <PageHistorico finance={finance}/>}
