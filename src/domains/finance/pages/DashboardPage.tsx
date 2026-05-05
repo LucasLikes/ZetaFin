@@ -2,7 +2,8 @@ import { useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthContext } from '../../../app/providers/AuthProvider'
 import { useFinance } from '../hooks/useFinance'
-import type { Transaction } from '../types'
+import { SavingsBox } from '../components/SavingsBox'
+import type { Transaction, Goal } from '../types'
 import type { JSX } from 'react/jsx-runtime'
 
 // ─── helpers ────────────────────────────────────────────────────────────────
@@ -19,40 +20,29 @@ const C = {
   text: '#0F172A',
   muted: '#64748B',
   muted2: '#94A3B8',
-
-  // primary action
   primary: '#7FE5A8',
   primaryText: '#0F2318',
   primaryHov: '#6DD99A',
-
-  // status colors — menos saturação, mais elegância
   green: '#22C55E',
   greenDim: 'rgba(34,197,94,0.08)',
   greenBdr: 'rgba(34,197,94,0.20)',
-
   red: '#EF4444',
   redDim: 'rgba(239,68,68,0.07)',
   redBdr: 'rgba(239,68,68,0.20)',
-
   amber: '#F59E0B',
   amberDim: 'rgba(245,158,11,0.08)',
   amberBdr: 'rgba(245,158,11,0.20)',
-
   blue: '#3B82F6',
   blueDim: 'rgba(59,130,246,0.08)',
   blueBdr: 'rgba(59,130,246,0.20)',
-
-  // sidebar — slate escuro elegante
   side: '#0F172A',
   sideBdr: 'rgba(255,255,255,0.06)',
   sideText: 'rgba(248,250,252,0.55)',
   sideActive: 'rgba(255,255,255,0.06)',
-
   shadow: '0 1px 2px rgba(0,0,0,0.04), 0 1px 6px rgba(0,0,0,0.03)',
   shadowMd: '0 4px 12px rgba(0,0,0,0.07)',
 }
 
-// ─── tipografia — sistema profissional ───────────────────────────────────────
 const FONT = `-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', system-ui, sans-serif`
 
 // ─── ícones ──────────────────────────────────────────────────────────────────
@@ -63,7 +53,6 @@ const IcFlag = () => <svg width="17" height="17" viewBox="0 0 24 24" fill="none"
 const IcSettings = () => <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" /></svg>
 const IcPlus = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.25" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
 const IcLogout = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>
-const IcAlert = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
 const IcTrash = () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2" /></svg>
 const IcSearch = () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
 const IcChevron = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
@@ -89,7 +78,7 @@ const inputBase: React.CSSProperties = {
   transition: 'border-color .15s, box-shadow .15s',
 }
 
-// ─── SIDEBAR — refinada, sem neon ────────────────────────────────────────────
+// ─── SIDEBAR ─────────────────────────────────────────────────────────────────
 const Sidebar = ({ page, setPage, user, onLogout }: {
   page: Page
   setPage: (p: Page) => void
@@ -102,14 +91,11 @@ const Sidebar = ({ page, setPage, user, onLogout }: {
   return (
     <aside style={{
       width: `${W}px`, minWidth: `${W}px`, flexShrink: 0,
-      background: C.side,
-      borderRight: `1px solid ${C.sideBdr}`,
+      background: C.side, borderRight: `1px solid ${C.sideBdr}`,
       display: 'flex', flexDirection: 'column',
       transition: 'width .2s cubic-bezier(.4,0,.2,1), min-width .2s cubic-bezier(.4,0,.2,1)',
       overflow: 'hidden', position: 'relative', zIndex: 10,
     }}>
-
-      {/* logo */}
       <div style={{
         padding: expanded ? '20px 16px 16px' : '20px 0 16px',
         display: 'flex', alignItems: 'center',
@@ -119,16 +105,11 @@ const Sidebar = ({ page, setPage, user, onLogout }: {
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', overflow: 'hidden' }}>
           <div style={{
             width: '30px', height: '30px', borderRadius: '8px', flexShrink: 0,
-            background: C.primary,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: '15px', fontWeight: 700, color: C.primaryText,
-            fontFamily: FONT,
+            background: C.primary, display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: '15px', fontWeight: 700, color: C.primaryText, fontFamily: FONT,
           }}>Ζ</div>
           {expanded && (
-            <span style={{
-              fontSize: '15px', fontWeight: 700, color: '#F8FAFC',
-              letterSpacing: '-.3px', whiteSpace: 'nowrap', fontFamily: FONT,
-            }}>ZetaFin</span>
+            <span style={{ fontSize: '15px', fontWeight: 700, color: '#F8FAFC', letterSpacing: '-.3px', whiteSpace: 'nowrap', fontFamily: FONT }}>ZetaFin</span>
           )}
         </div>
         {expanded && (
@@ -145,77 +126,47 @@ const Sidebar = ({ page, setPage, user, onLogout }: {
         )}
       </div>
 
-      {/* nav items */}
       <div style={{ flex: 1, padding: expanded ? '12px 10px' : '12px 6px', display: 'flex', flexDirection: 'column', gap: '1px' }}>
         {NAV.map(({ id, label, icon: Ic }) => {
           const active = page === id
           return (
-            <button
-              key={id}
-              onClick={() => setPage(id)}
-              title={!expanded ? label : undefined}
-              style={{
-                display: 'flex', alignItems: 'center',
-                gap: expanded ? '10px' : '0',
-                justifyContent: expanded ? 'flex-start' : 'center',
-                padding: expanded ? '9px 12px' : '10px 0',
-                borderRadius: '8px', width: '100%',
-                // indicador ativo: borda esquerda — sem glow, profissional
-                border: 'none',
-                borderLeft: active ? `3px solid ${C.primary}` : '3px solid transparent',
-                background: active ? C.sideActive : 'transparent',
-                color: active ? '#F8FAFC' : C.sideText,
-                cursor: 'pointer', transition: 'all .15s',
-                fontSize: '13px', fontWeight: active ? 600 : 500,
-                fontFamily: FONT,
-                paddingLeft: expanded ? (active ? '9px' : '12px') : undefined,
-              }}
-              onMouseEnter={e => {
-                if (!active) {
-                  (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.04)'
-                    ; (e.currentTarget as HTMLElement).style.color = 'rgba(248,250,252,0.85)'
-                }
-              }}
-              onMouseLeave={e => {
-                if (!active) {
-                  (e.currentTarget as HTMLElement).style.background = 'transparent'
-                    ; (e.currentTarget as HTMLElement).style.color = C.sideText
-                }
-              }}
+            <button key={id} onClick={() => setPage(id)} title={!expanded ? label : undefined} style={{
+              display: 'flex', alignItems: 'center',
+              gap: expanded ? '10px' : '0',
+              justifyContent: expanded ? 'flex-start' : 'center',
+              padding: expanded ? '9px 12px' : '10px 0',
+              borderRadius: '8px', width: '100%',
+              border: 'none',
+              borderLeft: active ? `3px solid ${C.primary}` : '3px solid transparent',
+              background: active ? C.sideActive : 'transparent',
+              color: active ? '#F8FAFC' : C.sideText,
+              cursor: 'pointer', transition: 'all .15s',
+              fontSize: '13px', fontWeight: active ? 600 : 500, fontFamily: FONT,
+              paddingLeft: expanded ? (active ? '9px' : '12px') : undefined,
+            }}
+              onMouseEnter={e => { if (!active) { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.04)'; (e.currentTarget as HTMLElement).style.color = 'rgba(248,250,252,0.85)' } }}
+              onMouseLeave={e => { if (!active) { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.color = C.sideText } }}
             >
               <span style={{ flexShrink: 0 }}><Ic /></span>
               {expanded && <span style={{ whiteSpace: 'nowrap' }}>{label}</span>}
             </button>
           )
         })}
-
-        {/* expand quando colapsado */}
         {!expanded && (
-          <button
-            onClick={() => setExpanded(true)}
-            title="Expandir menu"
-            style={{
-              marginTop: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center',
-              padding: '9px 0', borderRadius: '8px', width: '100%',
-              border: '1px solid rgba(255,255,255,0.07)', background: 'transparent',
-              color: 'rgba(248,250,252,0.25)', cursor: 'pointer', transition: 'all .15s',
-              fontFamily: FONT,
-            }}
-            onMouseEnter={e => {
-              (e.currentTarget as HTMLElement).style.color = 'rgba(248,250,252,0.6)'
-                ; (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.04)'
-            }}
-            onMouseLeave={e => {
-              (e.currentTarget as HTMLElement).style.color = 'rgba(248,250,252,0.25)'
-                ; (e.currentTarget as HTMLElement).style.background = 'transparent'
-            }}
+          <button onClick={() => setExpanded(true)} title="Expandir menu" style={{
+            marginTop: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            padding: '9px 0', borderRadius: '8px', width: '100%',
+            border: '1px solid rgba(255,255,255,0.07)', background: 'transparent',
+            color: 'rgba(248,250,252,0.25)', cursor: 'pointer', transition: 'all .15s', fontFamily: FONT,
+          }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = 'rgba(248,250,252,0.6)'; (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.04)' }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'rgba(248,250,252,0.25)'; (e.currentTarget as HTMLElement).style.background = 'transparent' }}
           >
             <IcChevron />
           </button>
         )}
       </div>
 
-      {/* user footer */}
       <div style={{ padding: expanded ? '12px 10px' : '12px 6px', borderTop: `1px solid ${C.sideBdr}` }}>
         <button onClick={onLogout} title={!expanded ? 'Sair' : undefined} style={{
           display: 'flex', alignItems: 'center',
@@ -226,27 +177,15 @@ const Sidebar = ({ page, setPage, user, onLogout }: {
           color: 'rgba(248,113,113,0.45)', cursor: 'pointer', transition: 'all .15s',
           fontSize: '12px', fontWeight: 500, fontFamily: FONT,
         }}
-          onMouseEnter={e => {
-            (e.currentTarget as HTMLElement).style.background = 'rgba(239,68,68,0.08)'
-              ; (e.currentTarget as HTMLElement).style.color = '#F87171'
-          }}
-          onMouseLeave={e => {
-            (e.currentTarget as HTMLElement).style.background = 'transparent'
-              ; (e.currentTarget as HTMLElement).style.color = 'rgba(248,113,113,0.45)'
-          }}
+          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(239,68,68,0.08)'; (e.currentTarget as HTMLElement).style.color = '#F87171' }}
+          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.color = 'rgba(248,113,113,0.45)' }}
         >
           <IcLogout />
           {expanded && <span>Sair</span>}
         </button>
-
         {expanded && user && (
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 12px 2px' }}>
-            <div style={{
-              width: '28px', height: '28px', borderRadius: '7px', flexShrink: 0,
-              background: C.primary,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: '12px', fontWeight: 700, color: C.primaryText,
-            }}>
+            <div style={{ width: '28px', height: '28px', borderRadius: '7px', flexShrink: 0, background: C.primary, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 700, color: C.primaryText }}>
               {user.name?.charAt(0).toUpperCase() ?? '?'}
             </div>
             <div style={{ overflow: 'hidden' }}>
@@ -262,19 +201,13 @@ const Sidebar = ({ page, setPage, user, onLogout }: {
 
 // ─── DONUT CHART ─────────────────────────────────────────────────────────────
 const CATEGORY_COLORS: Record<string, string> = {
-  'Alimentação': '#22C55E',
-  'Transporte': '#3B82F6',
-  'Moradia': '#8B5CF6',
-  'Saúde': '#06B6D4',
-  'Lazer': '#EC4899',
-  'Assinaturas': '#F59E0B',
-  'Educação': '#F97316',
-  'Geral': '#94A3B8',
+  'Alimentação': '#22C55E', 'Transporte': '#3B82F6', 'Moradia': '#8B5CF6',
+  'Saúde': '#06B6D4', 'Lazer': '#EC4899', 'Assinaturas': '#F59E0B',
+  'Educação': '#F97316', 'Geral': '#94A3B8',
 }
 
 const DonutChart = ({ transactions }: { transactions: Transaction[] }) => {
   const [hovered, setHovered] = useState<string | null>(null)
-
   const despesas = transactions.filter(t => t.tipo === 'despesa')
   const byCategory: Record<string, number> = {}
   despesas.forEach(t => { byCategory[t.categoria] = (byCategory[t.categoria] || 0) + t.valor })
@@ -282,34 +215,24 @@ const DonutChart = ({ transactions }: { transactions: Transaction[] }) => {
   const entries = Object.entries(byCategory).sort((a, b) => b[1] - a[1])
 
   if (total === 0) {
-    return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '180px', color: C.muted, fontSize: '13px' }}>
-        Sem despesas registradas
-      </div>
-    )
+    return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '180px', color: C.muted, fontSize: '13px' }}>Sem despesas registradas</div>
   }
 
   const cx = 80, cy = 80, R = 68, r = 46
   let cumulAngle = -Math.PI / 2
-
   const arcs = entries.map(([cat, val]) => {
     const pct = val / total
     const angle = pct * 2 * Math.PI
-    const x1 = cx + R * Math.cos(cumulAngle)
-    const y1 = cy + R * Math.sin(cumulAngle)
-    const x2 = cx + R * Math.cos(cumulAngle + angle)
-    const y2 = cy + R * Math.sin(cumulAngle + angle)
-    const ix1 = cx + r * Math.cos(cumulAngle)
-    const iy1 = cy + r * Math.sin(cumulAngle)
-    const ix2 = cx + r * Math.cos(cumulAngle + angle)
-    const iy2 = cy + r * Math.sin(cumulAngle + angle)
+    const x1 = cx + R * Math.cos(cumulAngle), y1 = cy + R * Math.sin(cumulAngle)
+    const x2 = cx + R * Math.cos(cumulAngle + angle), y2 = cy + R * Math.sin(cumulAngle + angle)
+    const ix1 = cx + r * Math.cos(cumulAngle), iy1 = cy + r * Math.sin(cumulAngle)
+    const ix2 = cx + r * Math.cos(cumulAngle + angle), iy2 = cy + r * Math.sin(cumulAngle + angle)
     const large = angle > Math.PI ? 1 : 0
     const d = [`M ${x1} ${y1}`, `A ${R} ${R} 0 ${large} 1 ${x2} ${y2}`, `L ${ix2} ${iy2}`, `A ${r} ${r} 0 ${large} 0 ${ix1} ${iy1}`, 'Z'].join(' ')
     const color = CATEGORY_COLORS[cat] || '#94A3B8'
     cumulAngle += angle
     return { cat, val, pct, d, color }
   })
-
   const hov = hovered ? entries.find(e => e[0] === hovered) : null
 
   return (
@@ -319,14 +242,9 @@ const DonutChart = ({ transactions }: { transactions: Transaction[] }) => {
           {arcs.map(({ cat, d, color }) => {
             const isHov = hovered === cat
             return (
-              <path
-                key={cat} d={d}
-                fill={color}
-                opacity={hovered && !isHov ? 0.3 : 0.85}
+              <path key={cat} d={d} fill={color} opacity={hovered && !isHov ? 0.3 : 0.85}
                 style={{ cursor: 'pointer', transition: 'opacity .2s, transform .15s', transformOrigin: '80px 80px', transform: isHov ? 'scale(1.03)' : 'scale(1)' }}
-                onMouseEnter={() => setHovered(cat)}
-                onMouseLeave={() => setHovered(null)}
-              />
+                onMouseEnter={() => setHovered(cat)} onMouseLeave={() => setHovered(null)} />
             )
           })}
           <circle cx="80" cy="80" r="40" fill={C.surface} />
@@ -345,11 +263,8 @@ const DonutChart = ({ transactions }: { transactions: Transaction[] }) => {
       </div>
       <div style={{ flex: 1, minWidth: '130px', display: 'flex', flexDirection: 'column', gap: '5px' }}>
         {arcs.slice(0, 6).map(({ cat, val, pct, color }) => (
-          <div key={cat}
-            style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'default', opacity: hovered && hovered !== cat ? 0.35 : 1, transition: 'opacity .2s' }}
-            onMouseEnter={() => setHovered(cat)}
-            onMouseLeave={() => setHovered(null)}
-          >
+          <div key={cat} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'default', opacity: hovered && hovered !== cat ? 0.35 : 1, transition: 'opacity .2s' }}
+            onMouseEnter={() => setHovered(cat)} onMouseLeave={() => setHovered(null)}>
             <div style={{ width: '7px', height: '7px', borderRadius: '2px', background: color, flexShrink: 0 }} />
             <div style={{ flex: 1, fontSize: '11px', color: C.muted, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{cat}</div>
             <div style={{ fontSize: '11px', fontWeight: 600, color: C.muted, whiteSpace: 'nowrap' }}>{(pct * 100).toFixed(0)}%</div>
@@ -361,7 +276,7 @@ const DonutChart = ({ transactions }: { transactions: Transaction[] }) => {
   )
 }
 
-// ─── BAR CHART — bordas arredondadas, gap refinado ────────────────────────────
+// ─── BAR CHART ───────────────────────────────────────────────────────────────
 const BarChart = () => {
   const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai']
   const des = [2100, 2800, 2400, 3100, 3350]
@@ -371,18 +286,10 @@ const BarChart = () => {
     <div style={{ display: 'flex', alignItems: 'flex-end', gap: '10px', height: '100%', paddingBottom: '22px' }}>
       {months.map((m, i) => (
         <div key={m} style={{ flex: 1, display: 'flex', gap: '4px', alignItems: 'flex-end', position: 'relative' }}>
-          <div
-            title={`Despesas: ${brl(des[i])}`}
-            style={{ flex: 1, height: `${Math.round((des[i] / max) * 110)}px`, background: 'rgba(239,68,68,0.55)', borderRadius: '6px 6px 0 0', transition: 'opacity .2s', cursor: 'default' }}
-            onMouseEnter={e => (e.currentTarget.style.opacity = '1')}
-            onMouseLeave={e => (e.currentTarget.style.opacity = '0.55')}
-          />
-          <div
-            title={`Entradas: ${brl(ent[i])}`}
-            style={{ flex: 1, height: `${Math.round((ent[i] / max) * 110)}px`, background: 'rgba(34,197,94,0.65)', borderRadius: '6px 6px 0 0', transition: 'opacity .2s', cursor: 'default' }}
-            onMouseEnter={e => (e.currentTarget.style.opacity = '1')}
-            onMouseLeave={e => (e.currentTarget.style.opacity = '0.65')}
-          />
+          <div title={`Despesas: ${brl(des[i])}`} style={{ flex: 1, height: `${Math.round((des[i] / max) * 110)}px`, background: 'rgba(239,68,68,0.55)', borderRadius: '6px 6px 0 0', transition: 'opacity .2s', cursor: 'default' }}
+            onMouseEnter={e => (e.currentTarget.style.opacity = '1')} onMouseLeave={e => (e.currentTarget.style.opacity = '0.55')} />
+          <div title={`Entradas: ${brl(ent[i])}`} style={{ flex: 1, height: `${Math.round((ent[i] / max) * 110)}px`, background: 'rgba(34,197,94,0.65)', borderRadius: '6px 6px 0 0', transition: 'opacity .2s', cursor: 'default' }}
+            onMouseEnter={e => (e.currentTarget.style.opacity = '1')} onMouseLeave={e => (e.currentTarget.style.opacity = '0.65')} />
           <span style={{ position: 'absolute', bottom: '-20px', left: 0, right: 0, textAlign: 'center', fontSize: '9px', color: C.muted2, fontFamily: FONT }}>{m}</span>
         </div>
       ))}
@@ -390,42 +297,19 @@ const BarChart = () => {
   )
 }
 
-// ─── METRIC CARD — neutro elegante ───────────────────────────────────────────
+// ─── METRIC CARD ─────────────────────────────────────────────────────────────
 const MetricCard = ({ label, value, valueSub, color, sub, accentBar }: {
-  label: string
-  value: string
-  valueSub?: string
-  color: string
-  sub?: string
-  accentBar: string
+  label: string; value: string; valueSub?: string; color: string; sub?: string; accentBar: string
 }) => (
-  <div
-    style={{
-      background: C.surface, border: `1px solid ${C.border}`,
-      borderRadius: '12px', padding: '18px 20px',
-      position: 'relative', overflow: 'hidden',
-      boxShadow: C.shadow, transition: 'box-shadow .2s, transform .2s',
-    }}
-    onMouseEnter={e => {
-      (e.currentTarget as HTMLElement).style.boxShadow = C.shadowMd
-        ; (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)'
-    }}
-    onMouseLeave={e => {
-      (e.currentTarget as HTMLElement).style.boxShadow = C.shadow
-        ; (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'
-    }}
+  <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: '12px', padding: '18px 20px', position: 'relative', overflow: 'hidden', boxShadow: C.shadow, transition: 'box-shadow .2s, transform .2s' }}
+    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.boxShadow = C.shadowMd; (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)' }}
+    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = C.shadow; (e.currentTarget as HTMLElement).style.transform = 'translateY(0)' }}
   >
-    {/* faixa superior sutil */}
     <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '2px', background: accentBar, opacity: 0.7 }} />
-
     <div style={{ fontSize: '11px', color: C.muted, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: '10px', fontFamily: FONT }}>{label}</div>
     <div style={{ fontSize: '22px', fontWeight: 700, color, letterSpacing: '-.3px', lineHeight: 1, marginBottom: '5px', fontFamily: FONT }}>
       {value}
-      {valueSub && (
-        <span style={{ fontSize: '11px', fontWeight: 500, color: C.green, marginLeft: '6px', verticalAlign: 'middle' }}>
-          <IcTrend /> {valueSub}
-        </span>
-      )}
+      {valueSub && <span style={{ fontSize: '11px', fontWeight: 500, color: C.green, marginLeft: '6px', verticalAlign: 'middle' }}><IcTrend /> {valueSub}</span>}
     </div>
     {sub && <div style={{ fontSize: '11px', color: C.muted2, fontFamily: FONT }}>{sub}</div>}
   </div>
@@ -435,21 +319,11 @@ const MetricCard = ({ label, value, valueSub, color, sub, accentBar }: {
 const TxRow = ({ tx, onDelete }: { tx: Transaction; onDelete?: (id: string) => void }) => {
   const isE = tx.tipo === 'entrada'
   return (
-    <div
-      style={{
-        display: 'flex', alignItems: 'center', gap: '12px',
-        padding: '10px 8px', borderBottom: `1px solid ${C.border}`,
-        transition: 'background .15s', borderRadius: '6px', margin: '0 -8px',
-      }}
+    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 8px', borderBottom: `1px solid ${C.border}`, transition: 'background .15s', borderRadius: '6px', margin: '0 -8px' }}
       onMouseEnter={e => (e.currentTarget.style.background = C.surf2)}
       onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
     >
-      <div style={{
-        width: '36px', height: '36px', borderRadius: '9px',
-        background: isE ? C.greenDim : C.redDim,
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        flexShrink: 0, color: isE ? C.green : C.red,
-      }}>
+      <div style={{ width: '36px', height: '36px', borderRadius: '9px', background: isE ? C.greenDim : C.redDim, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, color: isE ? C.green : C.red }}>
         {isE ? <IcUp /> : <IcDown />}
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
@@ -460,11 +334,7 @@ const TxRow = ({ tx, onDelete }: { tx: Transaction; onDelete?: (id: string) => v
         {isE ? '+' : '−'}{brl(tx.valor)}
       </div>
       {onDelete && (
-        <button onClick={() => onDelete(tx.id)} style={{
-          background: 'none', border: 'none', cursor: 'pointer',
-          color: C.muted2, display: 'flex', padding: '4px',
-          borderRadius: '5px', transition: 'all .15s', flexShrink: 0,
-        }}
+        <button onClick={() => onDelete(tx.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.muted2, display: 'flex', padding: '4px', borderRadius: '5px', transition: 'all .15s', flexShrink: 0 }}
           onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = C.red; (e.currentTarget as HTMLElement).style.background = C.redDim }}
           onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = C.muted2; (e.currentTarget as HTMLElement).style.background = 'none' }}
         ><IcTrash /></button>
@@ -498,24 +368,13 @@ const TxModal = ({ open, onClose, onSave }: {
   }
 
   return (
-    <div onClick={onClose} style={{
-      position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.5)',
-      zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px',
-      backdropFilter: 'blur(4px)',
-    }}>
-      <div onClick={e => e.stopPropagation()} style={{
-        background: C.surface, border: `1px solid ${C.border}`,
-        borderRadius: '16px', width: '100%', maxWidth: '420px', padding: '24px',
-        boxShadow: '0 20px 60px rgba(0,0,0,0.14)', animation: 'fadeUp .18s ease',
-        fontFamily: FONT,
-      }}>
+    <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.5)', zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px', backdropFilter: 'blur(4px)' }}>
+      <div onClick={e => e.stopPropagation()} style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: '16px', width: '100%', maxWidth: '420px', padding: '24px', boxShadow: '0 20px 60px rgba(0,0,0,0.14)', animation: 'fadeUp .18s ease', fontFamily: FONT }}>
         <div style={{ fontSize: '15px', fontWeight: 700, color: C.text, marginBottom: '18px', letterSpacing: '-.2px' }}>Nova transação</div>
-
         <div style={{ display: 'flex', gap: '6px', marginBottom: '16px', background: C.bg, borderRadius: '9px', padding: '3px' }}>
           {(['despesa', 'entrada'] as const).map(t => (
             <button key={t} onClick={() => { setTipo(t); setCat(t === 'despesa' ? CATS_D[0] : CATS_E[0]) }} style={{
-              flex: 1, padding: '9px', borderRadius: '7px',
-              fontWeight: 600, fontSize: '13px', cursor: 'pointer', transition: 'all .15s', fontFamily: FONT,
+              flex: 1, padding: '9px', borderRadius: '7px', fontWeight: 600, fontSize: '13px', cursor: 'pointer', transition: 'all .15s', fontFamily: FONT,
               background: tipo === t ? C.surface : 'transparent',
               color: tipo === t ? (t === 'despesa' ? C.red : C.green) : C.muted,
               border: tipo === t ? `1px solid ${C.border}` : '1px solid transparent',
@@ -523,7 +382,6 @@ const TxModal = ({ open, onClose, onSave }: {
             }}>{t === 'despesa' ? '↓ Despesa' : '↑ Entrada'}</button>
           ))}
         </div>
-
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           <div>
             <label style={{ fontSize: '11px', color: C.muted, fontWeight: 600, marginBottom: '5px', display: 'block', textTransform: 'uppercase', letterSpacing: '.05em', fontFamily: FONT }}>Descrição</label>
@@ -548,14 +406,8 @@ const TxModal = ({ open, onClose, onSave }: {
             </div>
           </div>
         </div>
-
         <div style={{ display: 'flex', gap: '8px', marginTop: '20px' }}>
-          <button onClick={onClose} style={{
-            flex: 1, padding: '11px', borderRadius: '9px',
-            border: `1px solid ${C.border}`, background: 'none',
-            color: C.muted, fontSize: '13px', fontWeight: 600, cursor: 'pointer', fontFamily: FONT,
-            transition: 'all .15s',
-          }}
+          <button onClick={onClose} style={{ flex: 1, padding: '11px', borderRadius: '9px', border: `1px solid ${C.border}`, background: 'none', color: C.muted, fontSize: '13px', fontWeight: 600, cursor: 'pointer', fontFamily: FONT, transition: 'all .15s' }}
             onMouseEnter={e => (e.currentTarget.style.background = C.bg)}
             onMouseLeave={e => (e.currentTarget.style.background = 'none')}
           >Cancelar</button>
@@ -565,9 +417,7 @@ const TxModal = ({ open, onClose, onSave }: {
             color: C.primaryText, fontSize: '13px', fontWeight: 700,
             cursor: saving || !desc || Number(valor) <= 0 ? 'not-allowed' : 'pointer',
             fontFamily: FONT, transition: 'all .15s',
-          }}>
-            {saving ? 'Salvando...' : 'Salvar'}
-          </button>
+          }}>{saving ? 'Salvando...' : 'Salvar'}</button>
         </div>
       </div>
     </div>
@@ -577,147 +427,120 @@ const TxModal = ({ open, onClose, onSave }: {
 // ─── PAGE INICIO ─────────────────────────────────────────────────────────────
 const PageInicio = ({ finance, onAddTx, onGoPage }: {
   finance: ReturnType<typeof useFinance>; onAddTx: () => void; onGoPage: (p: Page) => void
-}) => (
-  <div>
-    
+}) => {
+  const savingsGoals: Goal[] = [
+    {
+      id: '1',
+      title: 'Reserva de emergência',
+      description: 'Meu fundo para imprevistos',
+      targetAmount: 5000,
+      currentAmount: 1200,
+      type: 'investment',
+      yieldRate: 0.115,
+      monthlyContribution: 200,
+      createdAt: new Date().toISOString(),
+    },
+  ]
 
-    {/* metric cards — cores distintas por significado */}
-    <div className="metrics-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '12px', marginBottom: '18px' }}>
-      {finance.loading
-        ? [1, 2, 3, 4].map(k => <div key={k} style={{ height: '88px', background: C.surf2, borderRadius: '12px', animation: 'pulse 1.5s ease-in-out infinite' }} />)
-        : <>
-          {/* saldo = neutro — é resultado, não positivo/negativo */}
-          <MetricCard
-            label="Saldo do mês"
-            value={brl(finance.summary?.saldo ?? 0)}
-            color={C.text}
-            accentBar={C.borderMid}
-            sub="entradas − despesas"
-          />
-          {/* entradas = verde */}
-          <MetricCard
-            label="Entradas"
-            value={brl(finance.summary?.entradas ?? 0)}
-            valueSub="+5.2%"
-            color={C.green}
-            accentBar={C.green}
-            sub="mês atual"
-          />
-          {/* despesas = vermelho */}
-          <MetricCard
-            label="Despesas"
-            value={brl(finance.summary?.despesas ?? 0)}
-            color={C.red}
-            accentBar={C.red}
-            sub="+8% vs anterior"
-          />
-          {/* limite = azul — informação neutra */}
-          <MetricCard
-            label="Limite diário"
-            value={brl(finance.summary?.limiteDiario ?? 0)}
-            color={C.blue}
-            accentBar={C.blue}
-            sub="Baseado no seu salário"
-          />
-        </>
-      }
-    </div>
-
-    {/* charts row */}
-    <div className="row2-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: '14px' }}>
-      {/* bar chart */}
-      <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: '12px', padding: '18px 20px', boxShadow: C.shadow }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
-          <span style={{ fontSize: '13px', fontWeight: 700, color: C.text, fontFamily: FONT, letterSpacing: '-.2px' }}>Entradas vs Despesas</span>
-          <div style={{ display: 'flex', gap: '12px' }}>
-            {([[C.red, 'Despesas'], [C.green, 'Entradas']] as [string, string][]).map(([c, l]) => (
-              <div key={l} style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11px', color: C.muted, fontWeight: 500, fontFamily: FONT }}>
-                <div style={{ width: '7px', height: '7px', borderRadius: '2px', background: c }} />{l}
-              </div>
-            ))}
-          </div>
-        </div>
-        <div style={{ height: '148px' }}><BarChart /></div>
+  return (
+    <div>
+      {/* Caixinhas de investimento */}
+      <div style={{ marginBottom: '20px' }}>
+        {savingsGoals.map(goal => (
+          <SavingsBox key={goal.id} goal={goal} />
+        ))}
       </div>
 
-      {/* donut chart */}
-      <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: '12px', padding: '18px 20px', boxShadow: C.shadow }}>
-        <div style={{ fontSize: '13px', fontWeight: 700, color: C.text, marginBottom: '14px', fontFamily: FONT, letterSpacing: '-.2px' }}>Gastos por categoria</div>
-        <DonutChart transactions={finance.transactions} />
-      </div>
-    </div>
-
-    {/* bottom row */}
-    <div className="row3-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: '14px' }}>
-      {/* transações */}
-      <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: '12px', padding: '18px 20px', boxShadow: C.shadow }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-          <span style={{ fontSize: '13px', fontWeight: 700, color: C.text, fontFamily: FONT, letterSpacing: '-.2px' }}>Últimas transações</span>
-          <div style={{ display: 'flex', gap: '7px' }}>
-            <button onClick={onAddTx} style={{
-              display: 'flex', alignItems: 'center', gap: '5px',
-              padding: '7px 13px', borderRadius: '8px', border: 'none',
-              background: C.primary, color: C.primaryText,
-              fontSize: '12px', fontWeight: 700, cursor: 'pointer',
-              transition: 'all .15s', fontFamily: FONT,
-            }}
-              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = C.primaryHov }}
-              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = C.primary }}
-            ><IcPlus /> Nova</button>
-            <button onClick={() => onGoPage('historico')} style={{
-              padding: '7px 13px', borderRadius: '8px',
-              border: `1px solid ${C.border}`, background: 'none',
-              color: C.muted, fontSize: '12px', fontWeight: 600, cursor: 'pointer',
-              transition: 'all .15s', fontFamily: FONT,
-            }}
-              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = C.borderMid; (e.currentTarget as HTMLElement).style.color = C.text }}
-              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = C.border; (e.currentTarget as HTMLElement).style.color = C.muted }}
-            >Ver tudo</button>
-          </div>
-        </div>
-        {finance.transactions.slice(0, 6).map(tx => <TxRow key={tx.id} tx={tx} />)}
+      {/* metric cards */}
+      <div className="metrics-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '12px', marginBottom: '18px' }}>
+        {finance.loading
+          ? [1, 2, 3, 4].map(k => <div key={k} style={{ height: '88px', background: C.surf2, borderRadius: '12px', animation: 'pulse 1.5s ease-in-out infinite' }} />)
+          : <>
+            <MetricCard label="Saldo do mês" value={brl(finance.summary?.saldo ?? 0)} color={C.text} accentBar={C.borderMid} sub="entradas − despesas" />
+            <MetricCard label="Entradas" value={brl(finance.summary?.entradas ?? 0)} valueSub="+5.2%" color={C.green} accentBar={C.green} sub="mês atual" />
+            <MetricCard label="Despesas" value={brl(finance.summary?.despesas ?? 0)} color={C.red} accentBar={C.red} sub="+8% vs anterior" />
+            <MetricCard label="Limite diário" value={brl(finance.summary?.limiteDiario ?? 0)} color={C.blue} accentBar={C.blue} sub="Baseado no seu salário" />
+          </>
+        }
       </div>
 
-      {/* dívidas */}
-      <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: '12px', padding: '18px 20px', boxShadow: C.shadow }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-          <span style={{ fontSize: '13px', fontWeight: 700, color: C.text, fontFamily: FONT, letterSpacing: '-.2px' }}>Dívidas ativas</span>
-          <button onClick={() => onGoPage('dividas')} style={{
-            fontSize: '11px', padding: '4px 9px', borderRadius: '6px',
-            border: `1px solid ${C.border}`, background: 'none',
-            color: C.muted, cursor: 'pointer', fontWeight: 600, transition: 'all .15s', fontFamily: FONT,
-          }}
-            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = C.text; (e.currentTarget as HTMLElement).style.borderColor = C.borderMid }}
-            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = C.muted; (e.currentTarget as HTMLElement).style.borderColor = C.border }}
-          >Ver todas</button>
-        </div>
-        {finance.debts.slice(0, 3).map(d => {
-          const pct = Math.min((d.pago / d.total) * 100, 100)
-          const clr = pct >= 100 ? C.green : pct > 60 ? C.amber : C.red
-          return (
-            <div key={d.id} style={{ marginBottom: '13px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
-                <span style={{ fontSize: '12px', fontWeight: 600, color: C.text, fontFamily: FONT }}>{d.nome}</span>
-                <span style={{ fontSize: '11px', fontWeight: 700, color: clr, fontFamily: FONT }}>{pct.toFixed(0)}%</span>
-              </div>
-              <div style={{ background: C.bg, borderRadius: '3px', height: '4px', overflow: 'hidden' }}>
-                <div style={{ height: '100%', borderRadius: '3px', background: clr, width: `${pct.toFixed(1)}%`, transition: 'width .4s' }} />
-              </div>
+      {/* charts row */}
+      <div className="row2-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: '14px' }}>
+        <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: '12px', padding: '18px 20px', boxShadow: C.shadow }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
+            <span style={{ fontSize: '13px', fontWeight: 700, color: C.text, fontFamily: FONT, letterSpacing: '-.2px' }}>Entradas vs Despesas</span>
+            <div style={{ display: 'flex', gap: '12px' }}>
+              {([[C.red, 'Despesas'], [C.green, 'Entradas']] as [string, string][]).map(([c, l]) => (
+                <div key={l} style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11px', color: C.muted, fontWeight: 500, fontFamily: FONT }}>
+                  <div style={{ width: '7px', height: '7px', borderRadius: '2px', background: c }} />{l}
+                </div>
+              ))}
             </div>
-          )
-        })}
-        {finance.debts.length === 0 && (
-          <div style={{ textAlign: 'center', padding: '20px', color: C.muted, fontSize: '12px', fontFamily: FONT }}>Sem dívidas 🎉</div>
-        )}
+          </div>
+          <div style={{ height: '148px' }}><BarChart /></div>
+        </div>
+        <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: '12px', padding: '18px 20px', boxShadow: C.shadow }}>
+          <div style={{ fontSize: '13px', fontWeight: 700, color: C.text, marginBottom: '14px', fontFamily: FONT, letterSpacing: '-.2px' }}>Gastos por categoria</div>
+          <DonutChart transactions={finance.transactions} />
+        </div>
+      </div>
+
+      {/* bottom row */}
+      <div className="row3-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: '14px' }}>
+        <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: '12px', padding: '18px 20px', boxShadow: C.shadow }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+            <span style={{ fontSize: '13px', fontWeight: 700, color: C.text, fontFamily: FONT, letterSpacing: '-.2px' }}>Últimas transações</span>
+            <div style={{ display: 'flex', gap: '7px' }}>
+              <button onClick={onAddTx} style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '7px 13px', borderRadius: '8px', border: 'none', background: C.primary, color: C.primaryText, fontSize: '12px', fontWeight: 700, cursor: 'pointer', transition: 'all .15s', fontFamily: FONT }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = C.primaryHov }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = C.primary }}
+              ><IcPlus /> Nova</button>
+              <button onClick={() => onGoPage('historico')} style={{ padding: '7px 13px', borderRadius: '8px', border: `1px solid ${C.border}`, background: 'none', color: C.muted, fontSize: '12px', fontWeight: 600, cursor: 'pointer', transition: 'all .15s', fontFamily: FONT }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = C.borderMid; (e.currentTarget as HTMLElement).style.color = C.text }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = C.border; (e.currentTarget as HTMLElement).style.color = C.muted }}
+              >Ver tudo</button>
+            </div>
+          </div>
+          {finance.transactions.slice(0, 6).map(tx => <TxRow key={tx.id} tx={tx} />)}
+        </div>
+
+        <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: '12px', padding: '18px 20px', boxShadow: C.shadow }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+            <span style={{ fontSize: '13px', fontWeight: 700, color: C.text, fontFamily: FONT, letterSpacing: '-.2px' }}>Dívidas ativas</span>
+            <button onClick={() => onGoPage('dividas')} style={{ fontSize: '11px', padding: '4px 9px', borderRadius: '6px', border: `1px solid ${C.border}`, background: 'none', color: C.muted, cursor: 'pointer', fontWeight: 600, transition: 'all .15s', fontFamily: FONT }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = C.text; (e.currentTarget as HTMLElement).style.borderColor = C.borderMid }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = C.muted; (e.currentTarget as HTMLElement).style.borderColor = C.border }}
+            >Ver todas</button>
+          </div>
+          {finance.debts.slice(0, 3).map(d => {
+            const pct = Math.min((d.pago / d.total) * 100, 100)
+            const clr = pct >= 100 ? C.green : pct > 60 ? C.amber : C.red
+            return (
+              <div key={d.id} style={{ marginBottom: '13px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
+                  <span style={{ fontSize: '12px', fontWeight: 600, color: C.text, fontFamily: FONT }}>{d.nome}</span>
+                  <span style={{ fontSize: '11px', fontWeight: 700, color: clr, fontFamily: FONT }}>{pct.toFixed(0)}%</span>
+                </div>
+                <div style={{ background: C.bg, borderRadius: '3px', height: '4px', overflow: 'hidden' }}>
+                  <div style={{ height: '100%', borderRadius: '3px', background: clr, width: `${pct.toFixed(1)}%`, transition: 'width .4s' }} />
+                </div>
+              </div>
+            )
+          })}
+          {finance.debts.length === 0 && (
+            <div style={{ textAlign: 'center', padding: '20px', color: C.muted, fontSize: '12px', fontFamily: FONT }}>Sem dívidas 🎉</div>
+          )}
+        </div>
       </div>
     </div>
-  </div>
-)
+  )
+}
 
 // ─── PAGE HISTORICO ───────────────────────────────────────────────────────────
 const MONTHS = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
 
 const PageHistorico = ({ finance }: { finance: ReturnType<typeof useFinance> }) => {
+  // ← FIX: estado declarado DENTRO do componente
   const now = new Date()
   const [selMonth, setSelMonth] = useState(now.getMonth())
   const [selYear] = useState(now.getFullYear())
@@ -728,13 +551,11 @@ const PageHistorico = ({ finance }: { finance: ReturnType<typeof useFinance> }) 
     (filter === 'all' || t.tipo === filter) &&
     (!busca || t.descricao.toLowerCase().includes(busca.toLowerCase()) || t.categoria.toLowerCase().includes(busca.toLowerCase()))
   )
-
   const totalEntradas = filtered.filter(t => t.tipo === 'entrada').reduce((a, t) => a + t.valor, 0)
   const totalDespesas = filtered.filter(t => t.tipo === 'despesa').reduce((a, t) => a + t.valor, 0)
 
   return (
     <div>
-      {/* seletor de mês */}
       <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: '12px', padding: '14px 18px', marginBottom: '14px', boxShadow: C.shadow }}>
         <div style={{ fontSize: '11px', color: C.muted, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: '10px', fontFamily: FONT }}>
           Período — {selYear}
@@ -757,7 +578,6 @@ const PageHistorico = ({ finance }: { finance: ReturnType<typeof useFinance> }) 
         </div>
       </div>
 
-      {/* pills de resumo */}
       <div style={{ display: 'flex', gap: '8px', marginBottom: '14px', flexWrap: 'wrap' }}>
         {[
           { label: 'Entradas', val: totalEntradas, color: C.green, bg: C.greenDim, bd: C.greenBdr },
@@ -771,7 +591,6 @@ const PageHistorico = ({ finance }: { finance: ReturnType<typeof useFinance> }) 
         ))}
       </div>
 
-      {/* lista filtrada */}
       <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: '12px', padding: '18px 20px', boxShadow: C.shadow }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px', flexWrap: 'wrap', gap: '8px' }}>
           <span style={{ fontSize: '13px', fontWeight: 700, color: C.text, fontFamily: FONT, letterSpacing: '-.2px' }}>
@@ -794,14 +613,12 @@ const PageHistorico = ({ finance }: { finance: ReturnType<typeof useFinance> }) 
             })}
           </div>
         </div>
-
         <div style={{ position: 'relative', marginBottom: '12px' }}>
           <span style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: C.muted2 }}><IcSearch /></span>
           <input value={busca} onChange={e => setBusca(e.target.value)} placeholder="Buscar transação ou categoria..." style={{ ...inputBase, paddingLeft: '38px' }}
             onFocus={e => { (e.target as HTMLInputElement).style.borderColor = C.primary; (e.target as HTMLInputElement).style.boxShadow = `0 0 0 3px rgba(127,229,168,0.12)` }}
             onBlur={e => { (e.target as HTMLInputElement).style.borderColor = C.border; (e.target as HTMLInputElement).style.boxShadow = 'none' }} />
         </div>
-
         {finance.loading
           ? [1, 2, 3, 4, 5].map(k => <div key={k} style={{ height: '50px', background: C.surf2, borderRadius: '8px', marginBottom: '5px', animation: 'pulse 1.5s ease-in-out infinite' }} />)
           : filtered.length === 0
@@ -883,7 +700,6 @@ const PageDividas = ({ finance }: { finance: ReturnType<typeof useFinance> }) =>
             })
         }
       </div>
-
       <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: '12px', padding: '16px 18px', position: 'sticky', top: '70px', boxShadow: C.shadow }}>
         <div style={{ fontSize: '13px', fontWeight: 700, color: C.text, marginBottom: '12px', fontFamily: FONT, letterSpacing: '-.2px' }}>Nova dívida</div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -905,37 +721,17 @@ const PageDividas = ({ finance }: { finance: ReturnType<typeof useFinance> }) =>
             color: '#1a0f00', fontSize: '13px', fontWeight: 700,
             cursor: saving || !nome || Number(total) <= 0 ? 'not-allowed' : 'pointer',
             marginTop: '2px', fontFamily: FONT, transition: 'all .15s',
-          }}>
-            {saving ? 'Salvando...' : 'Adicionar dívida'}
-          </button>
+          }}>{saving ? 'Salvando...' : 'Adicionar dívida'}</button>
         </div>
       </div>
     </div>
   )
 }
 
-const cardStat: React.CSSProperties = {
-  background: C.surface,
-  border: `1px solid ${C.border}`,
-  borderRadius: '14px',
-  padding: '14px'
-}
-
-const statTitle: React.CSSProperties = {
-  fontSize: '11px',
-  color: C.muted,
-  marginBottom: '6px'
-}
-
-const statValue: React.CSSProperties = {
-  fontSize: '20px',
-  fontWeight: 700
-}
-
-const statSub: React.CSSProperties = {
-  fontSize: '12px',
-  color: C.muted
-}
+const cardStat: React.CSSProperties = { background: C.surface, border: `1px solid ${C.border}`, borderRadius: '14px', padding: '14px' }
+const statTitle: React.CSSProperties = { fontSize: '11px', color: C.muted, marginBottom: '6px' }
+const statValue: React.CSSProperties = { fontSize: '20px', fontWeight: 700 }
+const statSub: React.CSSProperties = { fontSize: '12px', color: C.muted }
 
 // ─── PAGE METAS ───────────────────────────────────────────────────────────────
 const PageMetas = () => {
@@ -948,12 +744,7 @@ const PageMetas = () => {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
         <div style={{ fontSize: '13px', fontWeight: 700, color: C.text, fontFamily: FONT }}>{goals.length} metas ativas</div>
-        <button style={{
-          display: 'flex', alignItems: 'center', gap: '5px',
-          padding: '8px 13px', borderRadius: '8px', border: 'none',
-          background: C.primary, color: C.primaryText,
-          fontSize: '12px', fontWeight: 700, cursor: 'pointer', fontFamily: FONT,
-        }}>
+        <button style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '8px 13px', borderRadius: '8px', border: 'none', background: C.primary, color: C.primaryText, fontSize: '12px', fontWeight: 700, cursor: 'pointer', fontFamily: FONT }}>
           <IcPlus /> Nova meta
         </button>
       </div>
@@ -980,8 +771,6 @@ const PageMetas = () => {
       </div>
     </div>
   )
-
-
 }
 
 // ─── PAGE CONFIG ──────────────────────────────────────────────────────────────
@@ -991,156 +780,40 @@ const PageConfig = ({ finance }: { finance: ReturnType<typeof useFinance> }) => 
   const [photo, setPhoto] = useState<string | null>(null)
 
   return (
-    <div style={{
-      display: 'grid',
-      gridTemplateColumns: '260px 1fr',
-      gap: '16px',
-      maxWidth: '1000px'
-    }}>
-
-      {/* 👤 CARD PERFIL */}
-      <div style={{
-        background: C.surface,
-        border: `1px solid ${C.border}`,
-        borderRadius: '16px',
-        padding: '18px',
-        boxShadow: C.shadow
-      }}>
+    <div style={{ display: 'grid', gridTemplateColumns: '260px 1fr', gap: '16px', maxWidth: '1000px' }}>
+      <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: '16px', padding: '18px', boxShadow: C.shadow }}>
         <div style={{ textAlign: 'center' }}>
-
-          {/* FOTO */}
           <div style={{ position: 'relative', marginBottom: '10px' }}>
-            <div style={{
-              width: '72px',
-              height: '72px',
-              borderRadius: '50%',
-              margin: '0 auto',
-              background: photo ? `url(${photo}) center/cover` : C.primary,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: C.primaryText,
-              fontSize: '22px',
-              fontWeight: 700
-            }}>
+            <div style={{ width: '72px', height: '72px', borderRadius: '50%', margin: '0 auto', background: photo ? `url(${photo}) center/cover` : C.primary, display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.primaryText, fontSize: '22px', fontWeight: 700 }}>
               {!photo && name.charAt(0)}
             </div>
-
-            <input
-              type="file"
-              style={{
-                position: 'absolute',
-                inset: 0,
-                opacity: 0,
-                cursor: 'pointer'
-              }}
-              onChange={(e) => {
-                const file = e.target.files?.[0]
-                if (file) setPhoto(URL.createObjectURL(file))
-              }}
-            />
+            <input type="file" style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer' }}
+              onChange={(e) => { const file = e.target.files?.[0]; if (file) setPhoto(URL.createObjectURL(file)) }} />
           </div>
-
-          {/* NOME */}
-          <input
-            value={name}
-            onChange={e => setName(e.target.value)}
-            style={{
-              ...inputBase,
-              textAlign: 'center',
-              marginBottom: '6px'
-            }}
-          />
-
-          <div style={{ fontSize: '12px', color: C.muted }}>
-            {email}
-          </div>
-
-          {/* BOTÃO */}
-          <button style={{
-            marginTop: '12px',
-            width: '100%',
-            padding: '10px',
-            borderRadius: '8px',
-            border: 'none',
-            background: C.primary,
-            color: C.primaryText,
-            fontWeight: 600,
-            cursor: 'pointer'
-          }}>
+          <input value={name} onChange={e => setName(e.target.value)} style={{ ...inputBase, textAlign: 'center', marginBottom: '6px' }} />
+          <div style={{ fontSize: '12px', color: C.muted }}>{email}</div>
+          <button style={{ marginTop: '12px', width: '100%', padding: '10px', borderRadius: '8px', border: 'none', background: C.primary, color: C.primaryText, fontWeight: 600, cursor: 'pointer' }}>
             Editar Perfil
           </button>
         </div>
       </div>
-
-      {/* 📊 GRID DIREITA */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(3, 1fr)',
-        gap: '14px'
-      }}>
-
-        {/* 💳 ASSINATURA */}
-        <div style={cardStat}>
-          <div style={statTitle}>Plano Atual</div>
-          <div style={statValue}>Pro</div>
-          <div style={statSub}>Ativo há 32 dias</div>
-        </div>
-
-        <div style={cardStat}>
-          <div style={statTitle}>Limite mensal</div>
-          <div style={statValue}>R$ 5.200</div>
-          <div style={statSub}>Baseado no salário</div>
-        </div>
-
-        <div style={cardStat}>
-          <div style={statTitle}>Economia</div>
-          <div style={statValue}>18%</div>
-          <div style={statSub}>+2.3% esse mês</div>
-        </div>
-
-        {/* 📈 CARD GRANDE (gráfico fake) */}
-        <div style={{
-          ...cardStat,
-          gridColumn: 'span 3',
-          height: '140px'
-        }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '14px' }}>
+        <div style={cardStat}><div style={statTitle}>Plano Atual</div><div style={statValue}>Pro</div><div style={statSub}>Ativo há 32 dias</div></div>
+        <div style={cardStat}><div style={statTitle}>Limite mensal</div><div style={statValue}>R$ 5.200</div><div style={statSub}>Baseado no salário</div></div>
+        <div style={cardStat}><div style={statTitle}>Economia</div><div style={statValue}>18%</div><div style={statSub}>+2.3% esse mês</div></div>
+        <div style={{ ...cardStat, gridColumn: 'span 3', height: '140px' }}>
           <div style={statTitle}>Gastos Mensais</div>
-
-          {/* gráfico fake */}
-          <div style={{
-            marginTop: '10px',
-            height: '60px',
-            display: 'flex',
-            alignItems: 'flex-end',
-            gap: '6px'
-          }}>
+          <div style={{ marginTop: '10px', height: '60px', display: 'flex', alignItems: 'flex-end', gap: '6px' }}>
             {[40, 60, 30, 80, 55, 70].map((h, i) => (
-              <div key={i} style={{
-                width: '10px',
-                height: `${h}%`,
-                background: C.primary,
-                borderRadius: '4px',
-                opacity: 0.8
-              }} />
+              <div key={i} style={{ width: '10px', height: `${h}%`, background: C.primary, borderRadius: '4px', opacity: 0.8 }} />
             ))}
           </div>
         </div>
-
-        {/* 💰 SALÁRIO (mantido) */}
-        <div style={{ ...cardStat, gridColumn: 'span 3' }}>
-          <div style={statTitle}>Salário mensal</div>
-          <div style={statValue}>R$ 5.200</div>
-        </div>
-
-        {/* 📦 SOBRE */}
+        <div style={{ ...cardStat, gridColumn: 'span 3' }}><div style={statTitle}>Salário mensal</div><div style={statValue}>R$ 5.200</div></div>
         <div style={{ ...cardStat, gridColumn: 'span 3' }}>
           <div style={statTitle}>Sobre</div>
-          <div style={statSub}>
-            Controle financeiro pessoal. Desenvolvido em teste por <b>Lucas Gabriel Likes</b>.
-          </div>
+          <div style={statSub}>Controle financeiro pessoal. Desenvolvido em teste por <b>Lucas Gabriel Likes</b>.</div>
         </div>
-
       </div>
     </div>
   )
@@ -1153,6 +826,7 @@ export const DashboardPage = () => {
   const finance = useFinance()
   const [page, setPage] = useState<Page>('inicio')
   const [modal, setModal] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
 
   const handleLogout = () => { logout(); navigate('/login') }
   const handleSaveTx = useCallback(async (tx: Omit<Transaction, 'id'>) => {
@@ -1162,18 +836,6 @@ export const DashboardPage = () => {
   const PAGE_TITLES: Record<Page, string> = {
     inicio: 'Dashboard', historico: 'Histórico',
     dividas: 'Dívidas', metas: 'Metas', config: 'Configurações',
-  }
-
-  const [menuOpen, setMenuOpen] = useState(false)
-
-  const itemStyle: React.CSSProperties = {
-    width: '100%',
-    padding: '10px 12px',
-    background: 'none',
-    border: 'none',
-    textAlign: 'left',
-    fontSize: '13px',
-    cursor: 'pointer',
   }
 
   return (
@@ -1203,20 +865,15 @@ export const DashboardPage = () => {
       `}</style>
 
       <div style={{ display: 'flex', minHeight: '100vh', background: C.bg, fontFamily: FONT, color: C.text, fontSize: '14px' }}>
-
-        {/* sidebar */}
         <div className="sidebar-wrap" style={{ display: 'flex', flexShrink: 0 }}>
           <Sidebar page={page} setPage={setPage} user={user} onLogout={handleLogout} />
         </div>
 
-        {/* main */}
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-
-          {/* topbar */}
           <nav style={{
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
             height: '54px', padding: '0 24px',
-            background: C.surface, borderBottom: '1px solid ${C.border}',
+            background: C.surface, borderBottom: `1px solid ${C.border}`,
             position: 'sticky', top: 0, zIndex: 50, flexShrink: 0,
             boxShadow: '0 1px 0 rgba(0,0,0,0.04)', gap: '14px',
           }}>
@@ -1228,151 +885,54 @@ export const DashboardPage = () => {
               </div>
             </div>
             <div style={{ position: 'relative' }}>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation()
-                  setMenuOpen(v => !v)
-                }}
-                style={{
-                  width: '30px',
-                  height: '30px',
-                  borderRadius: '8px',
-                  background: C.primary,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '12px',
-                  fontWeight: 700,
-                  color: C.primaryText,
-                  border: 'none',
-                  cursor: 'pointer',
-                }}
-              >
+              <button onClick={(e) => { e.stopPropagation(); setMenuOpen(v => !v) }} style={{
+                width: '30px', height: '30px', borderRadius: '8px', background: C.primary,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: '12px', fontWeight: 700, color: C.primaryText, border: 'none', cursor: 'pointer',
+              }}>
                 {user?.name?.charAt(0).toUpperCase() ?? '?'}
               </button>
-
               {menuOpen && (
-                <div
-                  onClick={(e) => e.stopPropagation()}
-                  style={{
-                    position: 'absolute',
-                    top: '44px',
-                    right: 0,
-                    width: '220px',
-                    background: '#0f172a',
-                    border: '1px solid rgba(255,255,255,0.06)',
-                    borderRadius: '14px',
-                    boxShadow: '0 10px 30px rgba(0,0,0,0.4)',
-                    zIndex: 200,
-                    overflow: 'hidden',
-                    animation: 'fadeUp .15s ease',
-                    color: '#e5e7eb'
-                  }}
-                >
-                  {/* HEADER */}
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '10px',
-                    padding: '14px'
-                  }}>
-                    <div style={{
-                      width: '36px',
-                      height: '36px',
-                      borderRadius: '20%',
-                      background: '#34d399',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontWeight: 700
-                    }}>
+                <div onClick={(e) => e.stopPropagation()} style={{
+                  position: 'absolute', top: '44px', right: 0, width: '220px',
+                  background: '#0f172a', border: '1px solid rgba(255,255,255,0.06)',
+                  borderRadius: '14px', boxShadow: '0 10px 30px rgba(0,0,0,0.4)',
+                  zIndex: 200, overflow: 'hidden', animation: 'fadeUp .15s ease', color: '#e5e7eb',
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '14px' }}>
+                    <div style={{ width: '36px', height: '36px', borderRadius: '20%', background: '#34d399', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700 }}>
                       {user?.name?.charAt(0).toUpperCase()}
                     </div>
-
                     <div style={{ flex: 1 }}>
                       <div style={{ fontSize: '13px', fontWeight: 600 }}>
                         {user?.name}
-                        <span style={{
-                          marginLeft: '6px',
-                          fontSize: '10px',
-                          background: '#34d399',
-                          padding: '2px 6px',
-                          borderRadius: '6px'
-                        }}>
-                          PRO
-                        </span>
+                        <span style={{ marginLeft: '6px', fontSize: '10px', background: '#34d399', padding: '2px 6px', borderRadius: '6px' }}>PRO</span>
                       </div>
-
-                      <div style={{
-                        fontSize: '11px',
-                        color: '#9ca3af'
-                      }}>
-                        {user?.email}
-                      </div>
+                      <div style={{ fontSize: '11px', color: '#9ca3af' }}>{user?.email}</div>
                     </div>
                   </div>
-
                   <div style={{ height: '1px', background: 'rgba(255,255,255,0.06)' }} />
-
-                  {/* ITENS */}
                   {[
                     { label: 'Profile Settings', action: () => setPage('config') },
-                    { label: 'Help Center', action: () => { } },
-                    { label: 'Light Mode', action: () => { } },
-                    { label: 'Upgrade Plan', action: () => { } },
+                    { label: 'Help Center', action: () => {} },
+                    { label: 'Light Mode', action: () => {} },
+                    { label: 'Upgrade Plan', action: () => {} },
                   ].map((item, i) => (
-                    <button
-                      key={i}
-                      onClick={() => {
-                        item.action()
-                        setMenuOpen(false)
-                      }}
-                      style={{
-                        width: '100%',
-                        padding: '10px 14px',
-                        background: 'transparent',
-                        border: 'none',
-                        textAlign: 'left',
-                        fontSize: '13px',
-                        color: '#e5e7eb',
-                        cursor: 'pointer'
-                      }}
+                    <button key={i} onClick={() => { item.action(); setMenuOpen(false) }} style={{ width: '100%', padding: '10px 14px', background: 'transparent', border: 'none', textAlign: 'left', fontSize: '13px', color: '#e5e7eb', cursor: 'pointer' }}
                       onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
                       onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-                    >
-                      {item.label}
-                    </button>
+                    >{item.label}</button>
                   ))}
-
                   <div style={{ height: '1px', background: 'rgba(255,255,255,0.06)' }} />
-
-                  {/* LOGOUT */}
-                  <button
-                    onClick={() => {
-                      handleLogout()
-                      setMenuOpen(false)
-                    }}
-                    style={{
-                      width: '100%',
-                      padding: '10px 14px',
-                      background: 'transparent',
-                      border: 'none',
-                      textAlign: 'left',
-                      fontSize: '13px',
-                      color: '#f87171',
-                      cursor: 'pointer'
-                    }}
+                  <button onClick={() => { handleLogout(); setMenuOpen(false) }} style={{ width: '100%', padding: '10px 14px', background: 'transparent', border: 'none', textAlign: 'left', fontSize: '13px', color: '#f87171', cursor: 'pointer' }}
                     onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
                     onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-                  >
-                    Sign Out
-                  </button>
+                  >Sign Out</button>
                 </div>
               )}
             </div>
           </nav>
 
-          {/* content */}
           <main className="content-main" style={{ flex: 1, overflowY: 'auto', padding: '22px 24px' }}>
             <div key={page} className="page-anim">
               {page === 'inicio' && <PageInicio finance={finance} onAddTx={() => setModal(true)} onGoPage={setPage} />}
@@ -1384,54 +944,11 @@ export const DashboardPage = () => {
           </main>
         </div>
 
-        {/* mobile bottom nav */}
-        <nav
-          className="bnav"
-          style={{
-            position: 'fixed',
-            bottom: 0,
-            left: 0,
-            right: 0,
-            width: '100%', // 🔥 garante largura total
-            background: C.surface,
-            borderTop: '1px solid ${C.border}',
-            zIndex: 100,
-            height: '64px',
-            display: 'flex',
-            justifyContent: 'space-around', // 🔥 distribui igualmente
-          }}
-        >
+        <nav className="bnav" style={{ position: 'fixed', bottom: 0, left: 0, right: 0, width: '100%', background: C.surface, borderTop: `1px solid ${C.border}`, zIndex: 100, height: '64px', display: 'flex', justifyContent: 'space-around' }}>
           {NAV.map(({ id, label, icon: Ic }) => (
-            <button
-              key={id}
-              onClick={() => setPage(id)}
-              style={{
-                flex: 1,
-                maxWidth: '20%', // 🔥 evita esmagar tudo
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '4px',
-                background: 'none',
-                border: 'none',
-                color: page === id ? C.primary : C.muted2,
-                fontSize: '10px',
-                fontWeight: 600,
-                cursor: 'pointer',
-              }}
-            >
+            <button key={id} onClick={() => setPage(id)} style={{ flex: 1, maxWidth: '20%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '4px', background: 'none', border: 'none', color: page === id ? C.primary : C.muted2, fontSize: '10px', fontWeight: 600, cursor: 'pointer' }}>
               <Ic />
-
-              <span
-                style={{
-                  whiteSpace: 'nowrap',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                }}
-              >
-                {label}
-              </span>
+              <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{label}</span>
             </button>
           ))}
         </nav>

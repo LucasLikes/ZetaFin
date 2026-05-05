@@ -18,6 +18,22 @@ export interface Debt {
   pago: number
 }
 
+ 
+export type Goal = {
+  id: string
+  title: string
+  description?: string
+  targetAmount: number
+  currentAmount: number
+ 
+  // ── campos de investimento (opcionais para metas simples) ──
+  type?: 'savings' | 'investment'
+  yieldRate?: number           // taxa anual, ex: 0.115 = 11.5% ao ano
+  monthlyContribution?: number // aporte mensal em R$
+ 
+  createdAt: string
+}
+
 export interface DashboardSummary {
   saldo: number
   entradas: number
@@ -25,3 +41,5 @@ export interface DashboardSummary {
   salario: number
   limiteDiario: number
 }
+
+
