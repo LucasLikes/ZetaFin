@@ -7,3 +7,6 @@ export { FormInput } from './FormInput'
 export { GoogleButton } from './GoogleButton'
 export { LoginForm } from './LoginForm'
 export { AuthLayout } from './AuthLayout'
+export { SignUpForm } from './SignUpForm'
+export { EmailVerificationForm } from './EmailVerificationForm'
+

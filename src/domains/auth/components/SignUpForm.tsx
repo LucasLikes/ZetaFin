@@ -1,11 +1,12 @@
 import React, { useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { FormInput } from './FormInput';
 import { Button } from './Button';
 import { GoogleButton } from './GoogleButton';
 
-interface LoginFormProps {
-  onSubmit: (email: string, password: string) => Promise<void>;
-  onGoogleLogin: () => Promise<void>;
+interface SignUpFormProps {
+  onSubmit: (name: string, email: string, password: string, confirmPassword: string) => Promise<void>;
+  onGoogleSignUp: () => Promise<void>;
   isLoading?: boolean;
   serverError?: string | null;
 }
@@ -39,24 +40,48 @@ const LockIcon = () => (
   </svg>
 );
 
-export const LoginForm: React.FC<LoginFormProps> = ({
+const UserIcon = () => (
+  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
+    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+    <circle cx="12" cy="7" r="4" />
+  </svg>
+);
+
+export const SignUpForm: React.FC<SignUpFormProps> = ({
   onSubmit,
-  onGoogleLogin,
+  onGoogleSignUp,
   isLoading = false,
   serverError,
 }) => {
-  const [email, setEmail] = useState('user@example.com');
-  const [password, setPassword] = useState('123456');
+  const navigate = useNavigate();
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [errors, setErrors] = useState<{ 
+    name?: string; 
+    email?: string; 
+    password?: string;
+    confirmPassword?: string;
+  }>({});
   const [googleLoading, setGoogleLoading] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
+  const nameRef = useRef<HTMLInputElement>(null);
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
+  const confirmPasswordRef = useRef<HTMLInputElement>(null);
 
   const validateForm = (): boolean => {
     const newErrors: typeof errors = {};
+
+    if (!name.trim()) {
+      newErrors.name = 'Nome é obrigatório';
+    } else if (name.trim().length < 3) {
+      newErrors.name = 'Nome deve ter pelo menos 3 caracteres';
+    }
 
     if (!email) {
       newErrors.email = 'Email é obrigatório';
@@ -68,6 +93,12 @@ export const LoginForm: React.FC<LoginFormProps> = ({
       newErrors.password = 'Senha é obrigatória';
     } else if (password.length < 6) {
       newErrors.password = 'Senha deve ter pelo menos 6 caracteres';
+    }
+
+    if (!confirmPassword) {
+      newErrors.confirmPassword = 'Confirmação de senha é obrigatória';
+    } else if (password !== confirmPassword) {
+      newErrors.confirmPassword = 'As senhas não conferem';
     }
 
     setErrors(newErrors);
@@ -83,7 +114,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
     }
 
     try {
-      await onSubmit(email, password);
+      await onSubmit(name, email, password, confirmPassword);
     } catch {
       // Error handled by parent component
     }
@@ -92,7 +123,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   const handleGoogleClick = async () => {
     setGoogleLoading(true);
     try {
-      await onGoogleLogin();
+      await onGoogleSignUp();
     } finally {
       setGoogleLoading(false);
     }
@@ -103,10 +134,10 @@ export const LoginForm: React.FC<LoginFormProps> = ({
       {/* Header */}
       <div className="space-y-2 mb-8">
         <h1 className="text-3xl sm:text-4xl font-bold text-gray-900">
-          Acesse sua conta
+          Crie sua conta
         </h1>
         <p className="text-gray-500">
-          Gerencie suas finanças com inteligência
+          Comece a controlar suas finanças
         </p>
       </div>
 
@@ -126,10 +157,25 @@ export const LoginForm: React.FC<LoginFormProps> = ({
         </div>
       )}
 
-      {/* Form Card - Complete */}
+      {/* Form Card */}
       <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 space-y-6">
         {/* Form Fields */}
         <div className="space-y-5">
+          <FormInput
+            ref={nameRef}
+            label="Nome completo"
+            type="text"
+            placeholder="Seu nome"
+            value={name}
+            onChange={(e) => {
+              setName(e.target.value);
+              if (isSubmitted) setErrors({ ...errors, name: '' });
+            }}
+            error={errors.name}
+            icon={<UserIcon />}
+            disabled={isLoading || googleLoading}
+          />
+
           <FormInput
             ref={emailRef}
             label="Email"
@@ -169,20 +215,36 @@ export const LoginForm: React.FC<LoginFormProps> = ({
                 {showPassword ? <EyeOffIcon /> : <EyeOpenIcon />}
               </button>
             }
-            autoComplete="current-password"
+            autoComplete="new-password"
             disabled={isLoading || googleLoading}
           />
-        </div>
 
-        {/* Forgot Password Link */}
-        <div className="flex justify-end">
-          <a
-            href="#forgot-password"
-            className="text-sm font-medium text-gray-600 hover:text-green-600 transition-colors"
-            style={{ '--text-hover': '#7FE5A8' } as React.CSSProperties}
-          >
-            Esqueci minha senha
-          </a>
+          <FormInput
+            ref={confirmPasswordRef}
+            label="Confirmar senha"
+            type={showConfirmPassword ? 'text' : 'password'}
+            placeholder="••••••"
+            value={confirmPassword}
+            onChange={(e) => {
+              setConfirmPassword(e.target.value);
+              if (isSubmitted) setErrors({ ...errors, confirmPassword: '' });
+            }}
+            error={errors.confirmPassword}
+            icon={<LockIcon />}
+            actions={
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="text-gray-400 hover:text-gray-600 transition-colors p-1 -mr-1"
+                title={showConfirmPassword ? 'Hide password' : 'Show password'}
+                aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+              >
+                {showConfirmPassword ? <EyeOffIcon /> : <EyeOpenIcon />}
+              </button>
+            }
+            autoComplete="new-password"
+            disabled={isLoading || googleLoading}
+          />
         </div>
 
         {/* Submit Button */}
@@ -193,7 +255,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
           disabled={isLoading || googleLoading}
           className="w-full"
         >
-          {isLoading ? 'Entrando...' : 'Entrar'}
+          {isLoading ? 'Criando conta...' : 'Criar conta'}
         </Button>
 
         {/* Divider */}
@@ -206,24 +268,27 @@ export const LoginForm: React.FC<LoginFormProps> = ({
           </div>
         </div>
 
-        {/* Google Login Button Inside Card */}
+        {/* Google Sign Up Button */}
         <GoogleButton
           onClick={handleGoogleClick}
           isLoading={googleLoading}
           disabled={isLoading || googleLoading}
-        />
+        >
+          Criar com Google
+        </GoogleButton>
       </div>
 
-      {/* Sign Up Link */}
+      {/* Login Link */}
       <p className="text-center text-sm text-gray-600">
-        Ainda não tem conta?{' '}
-        <a
-          href="/signup"
+        Já tem conta?{' '}
+        <button
+          type="button"
+          onClick={() => navigate('/login')}
           className="font-medium text-green-600 hover:text-green-700 transition-colors"
           style={{ color: '#7FE5A8' }}
         >
-          Cadastre-se
-        </a>
+          Entrar
+        </button>
       </p>
     </form>
   );

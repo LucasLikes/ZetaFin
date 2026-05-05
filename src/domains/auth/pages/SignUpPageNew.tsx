@@ -1,24 +1,55 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useAuth } from '../hooks/useAuth'
+import { AuthLayout } from '../components/AuthLayout'
+import { SignUpForm } from '../components/SignUpForm'
 
-export const LoginPageNew = () => {
+export const SignUpPageNew = () => {
   const navigate = useNavigate()
-  const { login, loginWithGoogle, isLoading, error } = useAuth()
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-  const [showPassword, setShowPassword] = useState(false)
-  const [buttonHovered, setButtonHovered] = useState(false)
-  const [googleHovered, setGoogleHovered] = useState(false)
-  const [emailFocused, setEmailFocused] = useState(false)
-  const [passwordFocused, setPasswordFocused] = useState(false)
-  
-  const [email, setEmail] = useState('user@example.com')
-  const [password, setPassword] = useState('123456')
+  const [displayError, setDisplayError] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
 
-  // Inicializar Canvas de fundo
-  useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
+  const handleSignUp = async (name: string, email: string, password: string, confirmPassword: string) => {
+    setDisplayError(null)
+    setIsLoading(true)
+    try {
+      // Simular chamada de API
+      await new Promise(resolve => setTimeout(resolve, 1500))
+      // Redirecionar para verificação de email
+      setTimeout(() => navigate('/verify-email', { state: { email } }), 700)
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Erro ao criar conta'
+      setDisplayError(errorMessage)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleGoogleSignUp = async () => {
+    setDisplayError(null)
+    setIsLoading(true)
+    try {
+      // Simular Google Sign Up
+      await new Promise(resolve => setTimeout(resolve, 1500))
+      setTimeout(() => navigate('/dashboard'), 700)
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Erro ao criar conta com Google'
+      setDisplayError(errorMessage)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  return (
+    <AuthLayout showBrandingArea={true}>
+      <SignUpForm
+        onSubmit={handleSignUp}
+        onGoogleSignUp={handleGoogleSignUp}
+        isLoading={isLoading}
+        serverError={displayError}
+      />
+    </AuthLayout>
+  )
+}
 
     const ctx = canvas.getContext('2d')
     if (!ctx) return
@@ -173,22 +204,60 @@ export const LoginPageNew = () => {
     }
   }, [])
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const validateForm = () => {
+    if (!name.trim()) {
+      setError('Nome é obrigatório')
+      return false
+    }
+    if (!email.trim()) {
+      setError('Email é obrigatório')
+      return false
+    }
+    if (!/\S+@\S+\.\S+/.test(email)) {
+      setError('Email inválido')
+      return false
+    }
+    if (password.length < 6) {
+      setError('Senha deve ter pelo menos 6 caracteres')
+      return false
+    }
+    if (password !== confirmPassword) {
+      setError('As senhas não conferem')
+      return false
+    }
+    return true
+  }
+
+  const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault()
+    setError('')
+    
+    if (!validateForm()) return
+
+    setIsLoading(true)
     try {
-      await login(email, password)
-      navigate('/dashboard')
+      // Simulação de API call - substituir com chamada real
+      await new Promise(resolve => setTimeout(resolve, 1500))
+      // Redirecionar para verificação de email
+      navigate('/verify-email', { state: { email } })
     } catch (err) {
-      // Error is handled by useAuth hook
+      setError('Erro ao criar conta. Tente novamente.')
+    } finally {
+      setIsLoading(false)
     }
   }
 
-  const handleGoogleLogin = async () => {
+  const handleGoogleSignUp = async () => {
     try {
-      await loginWithGoogle()
+      // Implementar Google Sign Up aqui
+      setIsLoading(true)
+      // Simulação
+      await new Promise(resolve => setTimeout(resolve, 1500))
       navigate('/dashboard')
     } catch (err) {
-      // Error is handled by useAuth hook
+      setError('Erro ao criar conta com Google.')
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -250,7 +319,9 @@ export const LoginPageNew = () => {
         WebkitBackdropFilter: 'blur(18px)',
         boxShadow: `0 0 0 0.5px rgba(52,211,153,0.08) inset,
                     0 24px 64px rgba(0,0,0,0.5),
-                    0 0 80px rgba(52,211,153,0.04) inset`
+                    0 0 80px rgba(52,211,153,0.04) inset`,
+        maxHeight: '90vh',
+        overflowY: 'auto' as const
       }}>
         {/* Logo */}
         <div style={{
@@ -258,7 +329,7 @@ export const LoginPageNew = () => {
           alignItems: 'center',
           justifyContent: 'center',
           gap: '10px',
-          marginBottom: '28px'
+          marginBottom: '24px'
         }}>
           <div style={{
             width: '36px',
@@ -289,17 +360,24 @@ export const LoginPageNew = () => {
         {/* Welcome */}
         <div style={{
           textAlign: 'center',
-          marginBottom: '28px'
+          marginBottom: '24px'
         }}>
           <h2 style={{
             fontSize: '18px',
             fontWeight: '600',
             color: '#e8f5ef',
-            margin: 0,
+            margin: '0 0 6px 0',
             letterSpacing: '-0.2px'
           }}>
-            Bem-vindo de volta
+            Criar conta
           </h2>
+          <p style={{
+            fontSize: '12px',
+            color: 'rgba(255,255,255,0.4)',
+            margin: 0
+          }}>
+            Comece a controlar suas finanças
+          </p>
         </div>
 
         {/* Error Alert */}
@@ -318,7 +396,25 @@ export const LoginPageNew = () => {
         )}
 
         {/* Form */}
-        <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        <form onSubmit={handleSignUp} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          {/* Name Field */}
+          <div>
+            <input
+              type="text"
+              placeholder="Seu nome completo"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              style={{
+                ...inputStyle,
+                borderColor: nameFocused ? 'rgba(52,211,153,0.4)' : 'rgba(52,211,153,0.2)',
+                background: nameFocused ? 'rgba(10, 22, 16, 0.5)' : 'rgba(10, 22, 16, 0.35)'
+              } as any}
+              onFocus={() => setNameFocused(true)}
+              onBlur={() => setNameFocused(false)}
+              disabled={isLoading}
+            />
+          </div>
+
           {/* Email Field */}
           <div>
             <input
@@ -333,6 +429,7 @@ export const LoginPageNew = () => {
               } as any}
               onFocus={() => setEmailFocused(true)}
               onBlur={() => setEmailFocused(false)}
+              disabled={isLoading}
             />
           </div>
 
@@ -341,7 +438,7 @@ export const LoginPageNew = () => {
             <div style={{ position: 'relative' }}>
               <input
                 type={showPassword ? 'text' : 'password'}
-                placeholder="sua senha"
+                placeholder="Crie uma senha"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 style={{
@@ -352,6 +449,7 @@ export const LoginPageNew = () => {
                 } as any}
                 onFocus={() => setPasswordFocused(true)}
                 onBlur={() => setPasswordFocused(false)}
+                disabled={isLoading}
               />
               <button
                 type="button"
@@ -371,44 +469,57 @@ export const LoginPageNew = () => {
                   alignItems: 'center',
                   justifyContent: 'center'
                 }}
+                disabled={isLoading}
               >
                 {showPassword ? '👁️' : '👁️‍🗨️'}
               </button>
             </div>
           </div>
 
-          {/* Forgot Password */}
-          <div style={{
-            display: 'flex',
-            justifyContent: 'flex-end',
-            marginTop: '2px',
-            marginBottom: '4px'
-          }}>
-            <button
-              type="button"
-              style={{
-                fontSize: '11px',
-                color: 'rgba(52,211,153,0.55)',
-                cursor: 'pointer',
-                textDecoration: 'none',
-                border: 'none',
-                background: 'none',
-                transition: 'color 0.2s',
-                fontWeight: '400',
-                padding: 0
-              }}
-              onMouseEnter={(e) => {
-                (e.target as any).style.color = '#34d399'
-              }}
-              onMouseLeave={(e) => {
-                (e.target as any).style.color = 'rgba(52,211,153,0.55)'
-              }}
-            >
-              Esqueci a senha
-            </button>
+          {/* Confirm Password Field */}
+          <div>
+            <div style={{ position: 'relative' }}>
+              <input
+                type={showConfirmPassword ? 'text' : 'password'}
+                placeholder="Confirme a senha"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                style={{
+                  ...inputStyle,
+                  paddingRight: '40px',
+                  borderColor: confirmPasswordFocused ? 'rgba(52,211,153,0.4)' : 'rgba(52,211,153,0.2)',
+                  background: confirmPasswordFocused ? 'rgba(10, 22, 16, 0.5)' : 'rgba(10, 22, 16, 0.35)'
+                } as any}
+                onFocus={() => setConfirmPasswordFocused(true)}
+                onBlur={() => setConfirmPasswordFocused(false)}
+                disabled={isLoading}
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                style={{
+                  position: 'absolute',
+                  right: '12px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'none',
+                  border: 'none',
+                  color: '#34d399',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  padding: '4px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+                disabled={isLoading}
+              >
+                {showConfirmPassword ? '👁️' : '👁️‍🗨️'}
+              </button>
+            </div>
           </div>
 
-          {/* Login Button */}
+          {/* Sign Up Button */}
           <button
             type="submit"
             disabled={isLoading}
@@ -426,20 +537,20 @@ export const LoginPageNew = () => {
               letterSpacing: '-0.1px',
               transition: 'opacity 0.15s, transform 0.12s',
               marginTop: '8px',
-              marginBottom: '14px',
+              marginBottom: '10px',
               opacity: isLoading ? 0.7 : buttonHovered ? 0.88 : 1,
               transform: buttonHovered ? 'translateY(-1px)' : 'translateY(0)'
             }}
             onMouseEnter={() => !isLoading && setButtonHovered(true)}
             onMouseLeave={() => setButtonHovered(false)}
           >
-            {isLoading ? 'Entrando...' : 'Entrar'}
+            {isLoading ? 'Criando conta...' : 'Criar conta'}
           </button>
         </form>
 
         {/* Google Button */}
         <button
-          onClick={handleGoogleLogin}
+          onClick={handleGoogleSignUp}
           disabled={isLoading}
           style={{
             width: '100%',
@@ -469,7 +580,7 @@ export const LoginPageNew = () => {
             <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
             <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
           </svg>
-          Entrar com Google
+          Criar com Google
         </button>
 
         {/* Footer */}
@@ -479,13 +590,19 @@ export const LoginPageNew = () => {
           textAlign: 'center',
           margin: 0
         }}>
-          Não tem conta? <a href="#" style={{
+          Já tem conta? <button onClick={() => navigate('/login')} style={{
             color: '#34d399',
             textDecoration: 'none',
-            fontWeight: '500'
-          }}>Criar conta</a>
+            fontWeight: '500',
+            border: 'none',
+            background: 'none',
+            cursor: 'pointer',
+            fontSize: '12px',
+            padding: 0
+          }}>Entrar</button>
         </p>
       </div>
     </div>
   )
 }
+    

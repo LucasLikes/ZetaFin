@@ -10,25 +10,26 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({
   showBrandingArea = true,
 }) => {
   return (
-    <div className="min-h-screen flex items-center justify-center lg:items-stretch lg:justify-stretch bg-gray-50">
+    <div className="min-h-screen flex items-center justify-center lg:items-stretch lg:justify-stretch bg-gradient-to-br from-gray-50 via-gray-50 to-green-50">
       {/* Branding Area - Hidden on mobile */}
       {showBrandingArea && (
         <div
           className="hidden lg:flex lg:w-1/2 items-center justify-center p-8 relative overflow-hidden"
           style={{
-            background: 'linear-gradient(135deg, #7FE5A8 0%, #6DD99A 100%)',
+            background: 'linear-gradient(135deg, #7FE5A8 0%, #6DD99A 50%, #52C48B 100%)',
           }}
         >
-          {/* Decorative blur elements */}
-          <div className="absolute top-10 left-10 w-40 h-40 rounded-full opacity-10 blur-3xl bg-white"></div>
-          <div className="absolute bottom-10 right-10 w-60 h-60 rounded-full opacity-10 blur-3xl bg-white"></div>
+          {/* Decorative blur elements - Enhanced */}
+          <div className="absolute top-10 left-10 w-40 h-40 rounded-full opacity-15 blur-3xl bg-white"></div>
+          <div className="absolute bottom-10 right-10 w-60 h-60 rounded-full opacity-12 blur-3xl bg-white"></div>
+          <div className="absolute top-1/2 left-1/2 w-72 h-72 rounded-full opacity-10 blur-3xl bg-green-900 transform -translate-x-1/2 -translate-y-1/2"></div>
 
           {/* Branding Content */}
           <div className="relative z-10 text-center">
             {/* Logo Area */}
             <div className="mb-8 flex justify-center">
               <div
-                className="w-20 h-20 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center border border-white/30"
+                className="w-20 h-20 rounded-2xl bg-white/25 backdrop-blur-sm flex items-center justify-center border border-white/40"
                 aria-hidden="true"
               >
                 <span className="text-5xl font-bold text-white" style={{ letterSpacing: '-2px' }}>Ζ</span>
@@ -39,12 +40,12 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({
             <h1 className="text-5xl font-bold text-white mb-4 tracking-tight">
               ZetaFin
             </h1>
-            <p className="text-lg text-white/90 max-w-sm leading-relaxed">
+            <p className="text-lg text-white/95 max-w-sm leading-relaxed font-medium">
               Inteligência financeira na palma da sua mão
             </p>
 
             {/* Benefits */}
-            <div className="mt-12 space-y-4 pt-8 border-t border-white/20">
+            <div className="mt-12 space-y-4 pt-8 border-t border-white/30">
               {[
                 'Visualize seus gastos em tempo real',
                 'Planeje seu orçamento com facilidade',
@@ -52,7 +53,7 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({
               ].map((benefit, idx) => (
                 <div
                   key={idx}
-                  className="flex items-center justify-center gap-3 text-white/90"
+                  className="flex items-center justify-center gap-3 text-white/95"
                 >
                   <svg
                     className="w-5 h-5 flex-shrink-0"
@@ -65,7 +66,7 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({
                       clipRule="evenodd"
                     />
                   </svg>
-                  <span className="text-sm">{benefit}</span>
+                  <span className="text-sm font-medium">{benefit}</span>
                 </div>
               ))}
             </div>
