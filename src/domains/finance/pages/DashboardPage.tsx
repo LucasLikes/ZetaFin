@@ -985,7 +985,7 @@ const PageMetas = () => {
 }
 
 // ─── PAGE CONFIG ──────────────────────────────────────────────────────────────
-const PageConfig = ({ finance: _finance }: { finance: ReturnType<typeof useFinance> }) => {
+const PageConfig = ({ finance }: { finance: ReturnType<typeof useFinance> }) => {
   const [name, setName] = useState('Lucas Gabriel')
   const [email] = useState('lucas@email.com')
   const [photo, setPhoto] = useState<string | null>(null)
