@@ -1,0 +1,130 @@
+@import '@fontsource/inter';
+
+:root {
+  /* Dark Mode - Paleta Premium */
+  --bg-primary: #0B0F17;
+  --bg-secondary: #111827;
+  --bg-card: rgba(17, 24, 39, 0.72);
+  --border: rgba(255, 255, 255, 0.06);
+
+  --text-primary: #F3F4F6;
+  --text-secondary: #9CA3AF;
+
+  --green-primary: #B6FF3B;
+  --green-soft: #7CFF5B;
+  --green-glow: rgba(182, 255, 59, 0.18);
+
+  --danger: #FF5C5C;
+  --warning: #FFB84D;
+
+  /* Sombras e Efeitos */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.15);
+  --shadow-md: 0 8px 32px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.5);
+
+  /* Backdrop Filter */
+  --glassmorphism: backdrop-filter: blur(18px);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Premium Background with Radial Gradients */
+body {
+  background: radial-gradient(
+      circle at top left,
+      rgba(182, 255, 59, 0.08),
+      transparent 30%
+    ),
+    radial-gradient(circle at bottom right, rgba(99, 102, 241, 0.08), transparent 30%),
+    var(--bg-primary);
+  min-height: 100vh;
+}
+
+/* Glassmorphism Card Base */
+.glass-card {
+  backdrop-filter: blur(18px);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 28px;
+  box-shadow: var(--shadow-md),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+/* Green Glow Effect */
+.green-glow {
+  box-shadow: 0 0 0 1px rgba(182, 255, 59, 0.08), 0 0 24px rgba(182, 255, 59, 0.18),
+    0 0 48px rgba(182, 255, 59, 0.08);
+}
+
+/* Animations */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes glow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 1px rgba(182, 255, 59, 0.08), 0 0 24px rgba(182, 255, 59, 0.18),
+      0 0 48px rgba(182, 255, 59, 0.08);
+  }
+  50% {
+    box-shadow: 0 0 0 1px rgba(182, 255, 59, 0.12), 0 0 32px rgba(182, 255, 59, 0.24),
+      0 0 64px rgba(182, 255, 59, 0.12);
+  }
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(182, 255, 59, 0.2);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(182, 255, 59, 0.3);
+}
+
+/* Selection */
+::selection {
+  background: rgba(182, 255, 59, 0.3);
+  color: var(--text-primary);
+}
