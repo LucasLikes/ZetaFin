@@ -4,12 +4,10 @@ import {
   SiSpotify,
   SiUber,
   SiNubank,
-  SiMercadolibre,
   SiAliexpress,
   SiApple,
-  SiAmazon,
 } from 'react-icons/si'
-import { ComponentType } from 'react'
+import type { ComponentType } from 'react';
 
 export interface TransactionIcon {
   icon: ComponentType<{ size: number; color: string }>
@@ -37,10 +35,10 @@ export const transactionIcons: Record<string, TransactionIcon> = {
     icon: SiNubank,
     color: '#8A05BE',
   },
-  mercadolivre: {
-    icon: SiMercadolibre,
-    color: '#FFE600',
-  },
+  // mercadolivre: {
+  //   icon: SiMercadolibre,
+  //   color: '#FFE600',
+  // },
   aliexpress: {
     icon: SiAliexpress,
     color: '#FF4747',
@@ -49,10 +47,10 @@ export const transactionIcons: Record<string, TransactionIcon> = {
     icon: SiApple,
     color: '#FFFFFF',
   },
-  amazon: {
-    icon: SiAmazon,
-    color: '#FF9900',
-  },
+  // amazon: {
+  //   icon: SiAmazon,
+  //   color: '#FF9900',
+  // },
   default: {
     icon: SiApple,
     color: '#B6FF3B',

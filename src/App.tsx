@@ -1,12 +1,12 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from './app/providers/AuthProvider'
 import { ProtectedRoute } from './app/providers/ProtectedRoute'
-import { ThemeProvider } from './contexts/ThemeContext'
 import { LoginPage } from './domains/auth/pages/LoginPage'
 import { SignUpPageNew } from './domains/auth/pages/SignUpPageNew'
 import { EmailVerificationPage } from './domains/auth/pages/EmailVerificationPage'
 import { DashboardPage } from './domains/finance/pages/DashboardPage'
 import { InsightsPage } from './domains/finance/pages/InsightsPageThemed'
+import { ThemeProvider } from './app/providers/ThemeProvider'
 
 function App() {
   return (
