@@ -1,11 +1,10 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-// https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
   server: {
-    host: true,
-    allowedHosts: true,
+    port: 3000,
+    strictPort: true,  // ← força parar se a porta estiver ocupada, não pula para outra
   },
 })
